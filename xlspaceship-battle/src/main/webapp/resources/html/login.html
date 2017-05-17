@@ -1,0 +1,24 @@
+<h2>Login</h2>
+<div>
+	
+	<!-- <div ng-if="!equals({}, customer)">
+	  Test Object is not empty
+	</div>
+	<div ng-if="equals({}, customer)">
+	  Test Object is empty
+	</div> -->
+	
+	<form ng-submit="login()">
+		<p style="color:red">{{errorMessage}}</p>
+		<p>
+			<label for="username">Username</label> 
+			<input id="username" ng-model="username" type="text"/>
+		</p>
+		<p>
+			<label for="password">Password</label> 
+			<input id="password" ng-model="password" type="password"/>
+		</p>
+		<input type="submit" value="Login" />
+	</form>
+	
+</div>

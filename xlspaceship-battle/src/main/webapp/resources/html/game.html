@@ -1,0 +1,19 @@
+<h2>Products</h2>
+<div>
+
+	<p ng-show="isAuthUser">Auth User</p>
+	<p ng-show="!isAuthUser">Not Auth User</p>
+	
+	<h3>{{isAuthUser}}</h3>
+	
+	<div class="productGrid">
+		<div class="productItem" ng-repeat="product in products">
+			<img src="resources/images/product_na.gif"/>
+			<p>{{product.name}}</p>
+			<p>{{product.price}}</p>
+			<form ng-submit="addCartItem(product.id)" method="post">
+				<input type="submit" class="btn" value="Add to Cart"/>
+			</form>
+		</div>
+	</div>
+</div>
