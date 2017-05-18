@@ -22,23 +22,34 @@ public class SpaceShip {
 	@JoinColumn(name = "player_id", nullable = false)
 	private Player player;
 	
-	@Column(name = "x")
-	private Integer x;
+	@Column(name = "row")
+	private Integer row;
 	
-	@Column(name = "y")
-	private Integer y;
+	@Column(name = "col")
+	private Integer col;
 	
-	public SpaceShip(Integer x, Integer y) {
-		this.x = x;
-		this.x = y;
+	public SpaceShip(Integer row, Integer col) {
+		this.row = row;
+		this.col = col;
 	}
-
-	public Integer getX() {
-		return x;
+	
+	public Player getPlayer() {
+		return player;
 	}
-
-	public Integer getY() {
-		return y;
+	public void setPlayer(Player player) {
+		this.player = player;
+	}
+	public Integer getRow() {
+		return row;
+	}
+	public void setRow(Integer row) {
+		this.row = row;
+	}
+	public Integer getCol() {
+		return col;
+	}
+	public void setCol(Integer col) {
+		this.col = col;
 	}
 	
 }

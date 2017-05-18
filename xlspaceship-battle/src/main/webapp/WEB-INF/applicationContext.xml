@@ -74,9 +74,14 @@
 		<property name="entityManager" ref="entityManager" />
 	</bean>
 	
+	<bean id="spaceShipDAO" class="com.xlspaceship.battle.dao.SpaceShipDAOImpl">
+		<property name="entityManager" ref="entityManager" />
+	</bean>
+	
 	<bean id="gameService" class="com.xlspaceship.battle.service.GameServiceImpl">
 		<property name="gameDAO" ref="gameDAO"/>
 		<property name="playerDAO" ref="playerDAO"/>
+		<property name="spaceShipDAO" ref="spaceShipDAO"/>
 	</bean>
 
 </beans>

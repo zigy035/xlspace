@@ -9,6 +9,8 @@ gameApp.controller('gameController', function($scope, $http, $cookieStore, ngDia
 			url: "protocol/game/new", 
 			data: {
 	    		playerId : $scope.gameForm.playerId,
+	    		fullName : $scope.gameForm.fullName,
+	    		formation : $scope.gameForm.formation,
 	    		hostname : $scope.gameForm.hostname,
 	    		port : $scope.gameForm.port
 	        }, 
@@ -16,7 +18,11 @@ gameApp.controller('gameController', function($scope, $http, $cookieStore, ngDia
 			
 			console.log(response.data);
 			
-			$scope.game = response.data;
+			$scope.gameId = response.data.gameId;
+			$scope.fullName = response.data.fullName;
+			$scope.playerId = response.data.playerId;
+			$scope.starting = response.data.starting;
+			$scope.table = response.data.table;
 		});
     };
 	

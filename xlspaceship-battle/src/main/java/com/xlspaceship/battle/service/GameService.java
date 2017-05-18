@@ -11,5 +11,5 @@ public interface GameService {
 	
 	List<Player> getAvailableOpponents();
 	
-	void addGame(Game game, Player player);
+	void addGame(Game game, Player playerOne, Player playerTwo);
 }

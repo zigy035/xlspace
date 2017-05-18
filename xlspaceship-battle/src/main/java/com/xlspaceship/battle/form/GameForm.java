@@ -4,6 +4,7 @@ public class GameForm {
 	
 	private String playerId;
 	private String fullName;
+	private String formation;
 	private String hostname;
 	private String port;
 	
@@ -18,6 +19,12 @@ public class GameForm {
 	}
 	public void setFullName(String fullName) {
 		this.fullName = fullName;
+	}
+	public String getFormation() {
+		return formation;
+	}
+	public void setFormation(String formation) {
+		this.formation = formation;
 	}
 	public String getHostname() {
 		return hostname;

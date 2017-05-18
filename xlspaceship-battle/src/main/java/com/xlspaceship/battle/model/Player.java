@@ -1,11 +1,14 @@
 package com.xlspaceship.battle.model;
 
+import java.util.List;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 
 @Entity
 @Table(name = "player")
@@ -18,6 +21,9 @@ public class Player {
 	
 	@Column(name = "full_name")
 	private String fullName;
+	
+	@Transient
+	private List<SpaceShip> spaceships;
 	
 	public Player(String fullName) {
 		this.fullName = fullName;
@@ -37,6 +43,14 @@ public class Player {
 
 	public void setFullName(String fullName) {
 		this.fullName = fullName;
+	}
+
+	public List<SpaceShip> getSpaceships() {
+		return spaceships;
+	}
+
+	public void setSpaceships(List<SpaceShip> spaceships) {
+		this.spaceships = spaceships;
 	}
 
 	@Override
