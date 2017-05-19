@@ -37,11 +37,23 @@
 		<p>Opponent Full Name: {{fullName}}</p>
 		<p>Opponent Player ID: {{playerId}}</p>
 		<p>Starting: {{starting}}</p>
-		<p></p>
-		<input type="textarea" value="{{table}}" style="width: 200px;"/>
 		
-<!-- 		<a href=""></a> -->
+		<textarea id="qual" rows="16" cols="32" style="resize:none">{{table}}</textarea>
+		
+		<table>
+			<tr>
+				<td><label for="salvo">Salvo shots <b style="color:red">*</b></label></td>
+				<td><input ng-model="salvo" type="text" required/></td>
+			</tr>
+		</table>
+		<p>
+			<input class="btn btn_link" type="button" value="Fire" ng-click="fireSalvo(gameId)" style="width: 150px" />
+		</p>
 	</div>
+	
+	
+	
+	
 	
 	<script src="resources/js/controllers/GameController.js"></script>
 </div>

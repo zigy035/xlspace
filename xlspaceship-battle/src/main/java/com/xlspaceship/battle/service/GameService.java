@@ -4,6 +4,7 @@ import java.util.List;
 
 import com.xlspaceship.battle.model.Game;
 import com.xlspaceship.battle.model.Player;
+import com.xlspaceship.battle.model.Shot;
 
 public interface GameService {
 	
@@ -12,4 +13,6 @@ public interface GameService {
 	List<Player> getAvailableOpponents();
 	
 	void addGame(Game game, Player playerOne, Player playerTwo);
+	
+	List<Shot> shotAndGetResults(List<Shot> shots, Integer gameId);
 }

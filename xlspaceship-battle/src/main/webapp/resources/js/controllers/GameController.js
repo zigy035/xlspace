@@ -25,5 +25,26 @@ gameApp.controller('gameController', function($scope, $http, $cookieStore, ngDia
 			$scope.table = response.data.table;
 		});
     };
+    
+    $scope.fireSalvo = function(gameId) {    	
+		$http({
+			method: 'PUT', 
+			url: "protocol/user/game/" + gameId + "/fire", 
+			data: {
+	    		salvo : $scope.salvo
+	        }, 
+		}).then(function(response) {
+			
+			console.log(response.data);
+			
+			$scope.gameId = response.data.gameId;
+			$scope.fullName = response.data.fullName;
+			$scope.playerId = response.data.playerId;
+			$scope.starting = response.data.starting;
+			$scope.table = response.data.table;
+		});
+    };
+    
+    
 	
 });

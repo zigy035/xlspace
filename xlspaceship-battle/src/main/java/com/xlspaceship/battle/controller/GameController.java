@@ -10,22 +10,32 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.xlspaceship.battle.dto.GameDTO;
+import com.xlspaceship.battle.enumeration.ShotStatus;
 import com.xlspaceship.battle.form.GameForm;
 import com.xlspaceship.battle.model.Game;
 import com.xlspaceship.battle.model.Player;
+import com.xlspaceship.battle.model.Shot;
 import com.xlspaceship.battle.model.SpaceShip;
 import com.xlspaceship.battle.service.GameService;
+import com.xlspaceship.battle.service.PlayerService;
 
 @Controller
 @RequestMapping("/")
 public class GameController {
 	
+	private static final String HEX_CHARS = "0123456789abcdef";
+
+	private static final String EMPTY = ".";
+
+	private static final String SPACE = "_";
+
 	private static final String XLABS = "XLABS";
 	
 	// Winger (X) Form
@@ -80,6 +90,10 @@ public class GameController {
 	
 	@Autowired
 	GameService gameService;
+
+	@Autowired
+	PlayerService playerService;
+
 	
 	@RequestMapping(method = RequestMethod.GET)
 	public String index() {
@@ -155,16 +169,17 @@ public class GameController {
 		for (int i=0; i<16; i++) {
 			for (int j=0; j<16; j++) {
 				if (doesShipExist(i, j, playerOne.getSpaceships())) {
-					sb.append(playerOne.getId()).append(" ");
+					sb.append("*"); //.append(SPACE);
 				} else if (doesShipExist(i, j, playerTwo.getSpaceships())) {
-					sb.append(playerTwo.getId()).append(" ");
+					// should display only destroyed (or hit) ships
+					sb.append("*"); //.append(SPACE);
 				} else {
-					sb.append("0 ");
+					sb.append(EMPTY);
 				}
 			}
 			sb.append("\n");
 		}
-		gameDTO.setTable(sb.toString());
+		gameDTO.setTable(sb.toString().trim());
 		
 		return gameDTO;
 	}
@@ -177,8 +192,71 @@ public class GameController {
 	
 	@RequestMapping(value = "/protocol/user/game/{game_id}/fire", method = RequestMethod.PUT)
 	@ResponseBody
-	public String fireSalvoShots() {
-		return "";
+	public GameDTO fireSalvo(@RequestBody String salvo, @PathVariable("game_id") String gameId) {
+		
+		Integer gid = Integer.valueOf(gameId);
+		Game game = gameService.getGameInfo(gid);
+		
+		GameDTO gameDTO = new GameDTO();
+		gameDTO.setGameId(String.valueOf(game.getId()));
+		gameDTO.setFullName(game.getPlayerTwo().getFullName());
+		gameDTO.setPlayerId(String.valueOf(game.getPlayerTwo().getId()));
+		gameDTO.setStarting(String.valueOf(game.getPlayerOne().getId()));
+		gameDTO.setTable("404");
+		
+		//salvo should be in format RxC-RxC-...-RxC
+		List<Shot> shots = new ArrayList<>();
+		if (StringUtils.isBlank(salvo)) {
+			return gameDTO;
+		} else {
+			String[] rcArr = salvo.trim().split("-");
+			if (rcArr == null || rcArr.length == 0) {
+				return gameDTO;
+			} else {
+				for (int i=0; i<rcArr.length; i++) {
+					if (rcArr[i].length() != 3) {
+						return gameDTO;
+					} else {
+						char[] charr = rcArr[i].toCharArray();
+						if (HEX_CHARS.indexOf(charr[0]) == -1 || 
+								charr[1] != 'x' || HEX_CHARS.indexOf(charr[2]) == -1) {
+							return gameDTO;
+						}
+						int row = Integer.valueOf(String.valueOf(charr[0]), 16);
+						int col = Integer.valueOf(String.valueOf(charr[2]), 16);
+						shots.add(new Shot(row, col));
+					}
+				}
+			}
+		}
+		
+		// proveri da li ne gadja svoje brodove :)
+		
+		// uzmi list shipova za playeraTwo i proveri da li ima pogodaka (setujes shot statuse i brises shipove)
+		List<Shot> result = gameService.shotAndGetResults(shots, gid);
+		List<SpaceShip> playerOneShips = playerService.getSpaceships(game.getPlayerOne().getId(), gid);
+		
+		// 'X' means hit, '-' means missed
+		StringBuilder sb = new StringBuilder();
+		for (int i=0; i<16; i++) {
+			for (int j=0; j<16; j++) {
+				if (doesShipExist(i, j, playerOneShips)) {
+					sb.append("*");
+				} else {
+					Shot shot = getShot(i, j, result);
+					if (shot != null) {
+						sb.append(shot.getStatus().equals(ShotStatus.HIT) ? "X" : "-");
+					} else {
+						sb.append(".");
+					}
+				}
+			}
+			sb.append("\n");
+		}
+		
+		gameDTO.setTable(sb.toString().trim());
+		
+		return gameDTO;
 	}
 	
 	private List<SpaceShip> generateSpaceShips(Character ch, int quater) {
@@ -204,6 +282,15 @@ public class GameController {
 			}
 		}
 		return false;
+	}
+	
+	private Shot getShot(int row, int col, List<Shot> shots) {
+		for (Shot shot : shots) {
+			if (shot.getRow().equals(row) && shot.getCol().equals(col)) {
+				return shot;
+			}
+		}
+		return null;
 	}
 	
 }
