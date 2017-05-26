@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.xlspaceship.battle.dto.GameDTO;
 import com.xlspaceship.battle.enumeration.ShotStatus;
+import com.xlspaceship.battle.form.FireSalvoForm;
 import com.xlspaceship.battle.form.GameForm;
 import com.xlspaceship.battle.model.Game;
 import com.xlspaceship.battle.model.Player;
@@ -26,13 +27,14 @@ import com.xlspaceship.battle.service.GameService;
 import com.xlspaceship.battle.service.PlayerService;
 import com.xlspaceship.battle.service.ShotService;
 import com.xlspaceship.battle.service.SpaceShipService;
-
-import fireSalvoForm.FireSalvoForm;
+import com.xlspaceship.battle.validator.GameValidator;
 
 @Controller
 @RequestMapping("/")
 public class GameController {
 	
+	private static final String NEXT_LINE = "\n";
+
 	private static final String HEX_CHARS = "0123456789abcdef";
 
 	private static final String EMPTY = ".";
@@ -40,8 +42,10 @@ public class GameController {
 	private static final String SPACESHIP_MARK = "*";
 	private static final String SPACESHIP_HIT = "X";
 	private static final String SPACESHIP_MISS = "-";
-
+	private static final Object SPACE = " ";
+	
 	private static final String XLABS = "XLABS";
+	private static final String ERROR_CODE = "404";
 	
 	// Winger (X) Form
 	private static final String [] WINGER_FORM = {"0:0", "0:2", "1:0", "1:2", "2:1", "3:0", "3:2", "4:0", "4:2"};
@@ -56,7 +60,7 @@ public class GameController {
 	
 	private static final Map<Character, String[]> battleshipFormMap = new HashMap<>();
 	private static final Map<Integer, QuaterOffset> quaterOffsetMap = new HashMap<>();
-	
+
 	static {
 		battleshipFormMap.put('X', WINGER_FORM);
 		battleshipFormMap.put('L', ANGLE_FORM);
@@ -101,6 +105,9 @@ public class GameController {
 	
 	@Autowired
 	ShotService shotService;
+	
+	@Autowired
+	GameValidator gameValidator;
 
 	
 	@RequestMapping(method = RequestMethod.GET)
@@ -172,20 +179,22 @@ public class GameController {
 		gameDTO.setFullName(game.getPlayerTwo().getFullName());
 		gameDTO.setPlayerId(String.valueOf(game.getPlayerTwo().getId()));
 		gameDTO.setStarting(String.valueOf(game.getPlayerOne().getId()));
+		gameDTO.setPlayerTurn(game.getPlayerOne().getFullName());
 		
 		StringBuilder sb = new StringBuilder();
 		for (int i=0; i<16; i++) {
 			for (int j=0; j<16; j++) {
 				if (doesShipExist(i, j, playerOne.getSpaceships())) {
-					sb.append(SPACESHIP_MARK); //.append(SPACE);
+					sb.append(SPACESHIP_MARK);
 				} else if (doesShipExist(i, j, playerTwo.getSpaceships())) {
 					// should display only destroyed (or hit) ships
-					sb.append(SPACESHIP_MARK); //.append(SPACE);
+					sb.append(SPACESHIP_MARK);
 				} else {
 					sb.append(EMPTY);
 				}
+				sb.append(SPACE);
 			}
-			sb.append("\n");
+			sb.append(NEXT_LINE);
 		}
 		gameDTO.setTable(sb.toString().trim());
 		
@@ -216,43 +225,36 @@ public class GameController {
 		gameDTO.setFullName(game.getPlayerTwo().getFullName());
 		gameDTO.setPlayerId(String.valueOf(playerTwoId));
 		gameDTO.setStarting(String.valueOf(playerOneId));
-		gameDTO.setTable("404");
 		
-		//salvo should be in format RxC-RxC-...-RxC
-		String salvo = fireSalvoForm.getSalvo();
-		List<Shot> shots = new ArrayList<>();
-		if (StringUtils.isBlank(salvo)) {
-			return gameDTO;
-		} else {
-			String[] rcArr = salvo.trim().split("-");
-			if (rcArr == null || rcArr.length == 0) {
-				return gameDTO;
-			} else {
-				for (int i=0; i<rcArr.length; i++) {
-					if (rcArr[i].length() != 3) {
-						return gameDTO;
-					} else {
-						char[] charr = rcArr[i].toCharArray();
-						if (HEX_CHARS.indexOf(charr[0]) == -1 || 
-								charr[1] != 'x' || HEX_CHARS.indexOf(charr[2]) == -1) {
-							return gameDTO;
-						}
-						int row = Integer.valueOf(String.valueOf(charr[0]), 16);
-						int col = Integer.valueOf(String.valueOf(charr[2]), 16);
-						
-						Shot shot = new Shot();
-						shot.setGame(game);
-						shot.setPlayer(game.getPlayerOne());
-						shot.setRow(row);
-						shot.setCol(col);
-						shots.add(shot);
-					}
+		/* OVDE MI TREBA PLAYER_ONE I TWO (GET from DB)
+		 * + extract to one private method
+		 * 
+		 * 
+		gameDTO.setPlayerTurn(game.getPlayerOne().getFullName());
+		
+		StringBuilder sb = new StringBuilder();
+		for (int i=0; i<16; i++) {
+			for (int j=0; j<16; j++) {
+				if (doesShipExist(i, j, playerOne.getSpaceships())) {
+					sb.append(SPACESHIP_MARK);
+				} else if (doesShipExist(i, j, playerTwo.getSpaceships())) {
+					// should display only destroyed (or hit) ships
+					sb.append(SPACESHIP_MARK);
+				} else {
+					sb.append(EMPTY);
 				}
+				sb.append(SPACE);
 			}
+			sb.append(NEXT_LINE);
 		}
+		gameDTO.setTable(sb.toString().trim());
+		*/
 		
-		// proveri da li ne gadja svoje brodove :)
-		// da li je vec gadjao tu (shot exist)
+		List<Shot> shots = gameValidator.fireSalvoValidate(gameDTO, fireSalvoForm, game);
+		if (shots == null) {
+			gameDTO.setError("Code " + ERROR_CODE + ": Invalid input!");
+			return gameDTO;
+		}
 		
 		// uzmi list shipova za playeraTwo i proveri da li ima pogodaka (setujes shot statuse i brises shipove)
 		gameService.shootSalvo(shots, gameId, playerOneId, playerTwoId);
@@ -276,8 +278,9 @@ public class GameController {
 						sb.append(EMPTY);
 					}
 				}
+				sb.append(SPACE);
 			}
-			sb.append("\n");
+			sb.append(NEXT_LINE);
 		}
 		
 		gameDTO.setTable(sb.toString().trim());

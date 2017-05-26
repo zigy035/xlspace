@@ -1,4 +1,4 @@
-package fireSalvoForm;
+package com.xlspaceship.battle.form;
 
 public class FireSalvoForm {
 	

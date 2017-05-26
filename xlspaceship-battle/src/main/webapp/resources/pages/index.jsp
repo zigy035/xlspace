@@ -36,9 +36,11 @@
 		<p>Game ID: {{game.gameId}}</p>
 		<p>Opponent Full Name: {{game.fullName}}</p>
 		<p>Opponent Player ID: {{game.playerId}}</p>
-		<p>Starting: {{game.starting}}</p>
+		<p ng-show="game.starting">Starting: {{game.starting}}</p>
+		<p ng-show="game.playerTurn">Player Turn: {{game.playerTurn}}</p>
+		<p style="color:red" ng-show="game.error">{{game.error}}</p>
 		
-		<textarea id="qual" rows="16" cols="32" style="resize:none">{{game.table}}</textarea>
+		<textarea id="qual" rows="16" cols="40" style="resize:none">{{game.table}}</textarea>
 		
 		<form id="fireForm" ng-submit="fireSalvo()" method="post">
 			<table>
@@ -48,7 +50,7 @@
 				</tr>
 				<tr>
 					<td><label for="salvo">Salvo shots <b style="color:red">*</b></label></td>
-					<td><input ng-model="fireSalvoForm.salvo" type="text" placeholder="ROWxCOL-ROWxCOL-...-ROWxCOL" required/></td>
+					<td><input ng-model="fireSalvoForm.salvo" type="text" placeholder="RxC-RxC-...-RxC" required/></td>
 				</tr>
 			</table>
 			<p>

@@ -46,6 +46,7 @@ public class GameServiceImpl implements GameService {
 		}
 		game.setPlayerOne(playerOne);
 		game.setPlayerTwo(playerTwo);
+		game.setPlayerTurn(playerOne);
 		gameDAO.addGame(game);
 	}
 
@@ -70,6 +71,9 @@ public class GameServiceImpl implements GameService {
 			}
 			saveShot(shot);
 		}
+		Game game = gameDAO.getGameInfo(gameId);
+		game.setPlayerTurn(playerDAO.getPlayer(playerTwoId));
+		gameDAO.updateGame(game);
 	}
 	
 	private void saveShot(Shot shot) {

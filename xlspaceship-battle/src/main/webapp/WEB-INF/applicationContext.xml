@@ -100,5 +100,9 @@
 		<property name="spaceShipDAO" ref="spaceShipDAO"/>
 		<property name="shotDAO" ref="shotDAO"/>
 	</bean>
+	
+	<bean id="gameValidator" class="com.xlspaceship.battle.validator.GameValidator">
+	
+	</bean>
 
 </beans>

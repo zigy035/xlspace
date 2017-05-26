@@ -25,5 +25,10 @@ public class GameDAOImpl implements GameDAO {
 	public void addGame(Game game) {
 		entityManager.persist(game);
 	}
+
+	@Override
+	public void updateGame(Game game) {
+		entityManager.merge(game);
+	}
 	
 }

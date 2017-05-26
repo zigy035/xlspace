@@ -7,4 +7,6 @@ public interface GameDAO {
 	Game getGameInfo(Integer gameId);
 	
 	void addGame(Game game);
+	
+	void updateGame(Game game);
 }

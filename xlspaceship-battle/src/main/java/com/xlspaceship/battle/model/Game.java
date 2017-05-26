@@ -23,9 +23,13 @@ public class Game {
 	private Player playerOne;
 	
 	@ManyToOne(targetEntity = Player.class)
-	@JoinColumn(name = "player_two_id", nullable = true)
+	@JoinColumn(name = "player_two_id", nullable = false)
 	private Player playerTwo;
-	
+
+	@ManyToOne(targetEntity = Player.class)
+	@JoinColumn(name = "player_turn_id", nullable = false)
+	private Player playerTurn;
+
 	@Column(name = "hostname")
 	private String hostname;
 	
@@ -50,6 +54,14 @@ public class Game {
 
 	public void setPlayerTwo(Player playerTwo) {
 		this.playerTwo = playerTwo;
+	}
+
+	public Player getPlayerTurn() {
+		return playerTurn;
+	}
+
+	public void setPlayerTurn(Player playerTurn) {
+		this.playerTurn = playerTurn;
 	}
 
 	public String getHostname() {

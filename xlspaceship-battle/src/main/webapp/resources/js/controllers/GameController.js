@@ -48,11 +48,11 @@ gameApp.controller('gameController', function($scope, $http) {
 			console.log("FIRE_SALVO: " + response.data);
 			
 			$scope.game = {
-//				gameId : response.data.gameId,
-//				fullName : response.data.fullName,
-//				playerId : response.data.playerId,
-//				starting : response.data.starting,
-				table : response.data.table
+				gameId : response.data.gameId,
+				fullName : response.data.fullName,
+				playerId : response.data.playerId,
+				table : response.data.table,
+				playerTurn : response.data.playerTurn
 			};
 		});
     };

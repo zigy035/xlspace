@@ -9,7 +9,7 @@ public class PlayerServiceImpl implements PlayerService {
 	PlayerDAO playerDAO;
 	
 	@Override
-	public Player getPlayer(String id) {
+	public Player getPlayer(Integer id) {
 		return playerDAO.getPlayer(id);
 	}
 

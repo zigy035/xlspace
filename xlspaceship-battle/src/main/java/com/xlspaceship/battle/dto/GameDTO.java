@@ -7,6 +7,8 @@ public class GameDTO {
 	private String gameId; //": "match-1",
 	private String starting; //": "xebialabs-1"
 	private String table;
+	private String error;
+	private String playerTurn;
 	
 	public String getPlayerId() {
 		return playerId;
@@ -38,5 +40,18 @@ public class GameDTO {
 	public void setTable(String table) {
 		this.table = table;
 	}
+	public String getError() {
+		return error;
+	}
+	public void setError(String error) {
+		this.error = error;
+	}
+	public String getPlayerTurn() {
+		return playerTurn;
+	}
+	public void setPlayerTurn(String playerTurn) {
+		this.playerTurn = playerTurn;
+	}
+	
 	
 }

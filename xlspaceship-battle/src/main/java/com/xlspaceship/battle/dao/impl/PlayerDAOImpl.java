@@ -7,7 +7,6 @@ import javax.persistence.EntityManager;
 import com.xlspaceship.battle.dao.PlayerDAO;
 import com.xlspaceship.battle.model.Player;
 import com.xlspaceship.battle.model.Shot;
-import com.xlspaceship.battle.model.SpaceShip;
 
 public class PlayerDAOImpl implements PlayerDAO {
 	
@@ -18,7 +17,7 @@ public class PlayerDAOImpl implements PlayerDAO {
 	}
 	
 	@Override
-	public Player getPlayer(String playerId) {
+	public Player getPlayer(Integer playerId) {
 		return (Player) entityManager
 				.createQuery("FROM Player p WHERE id = :playerId")
 				.setParameter("playerId", playerId)
