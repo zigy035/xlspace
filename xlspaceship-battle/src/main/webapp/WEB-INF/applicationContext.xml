@@ -66,26 +66,39 @@
 	<bean id="persistenceExceptionTranslationPostProcessor"
 		class="org.springframework.dao.annotation.PersistenceExceptionTranslationPostProcessor" />
 
-	<bean id="gameDAO" class="com.xlspaceship.battle.dao.GameDAOImpl">
+	<bean id="gameDAO" class="com.xlspaceship.battle.dao.impl.GameDAOImpl">
 		<property name="entityManager" ref="entityManager" />
 	</bean>
 
-	<bean id="playerDAO" class="com.xlspaceship.battle.dao.PlayerDAOImpl">
+	<bean id="playerDAO" class="com.xlspaceship.battle.dao.impl.PlayerDAOImpl">
 		<property name="entityManager" ref="entityManager" />
 	</bean>
 	
-	<bean id="spaceShipDAO" class="com.xlspaceship.battle.dao.SpaceShipDAOImpl">
+	<bean id="spaceShipDAO" class="com.xlspaceship.battle.dao.impl.SpaceShipDAOImpl">
 		<property name="entityManager" ref="entityManager" />
 	</bean>
 	
-	<bean id="playerService" class="com.xlspaceship.battle.service.PlayerServiceImpl">
+	<bean id="shotDAO" class="com.xlspaceship.battle.dao.impl.ShotDAOImpl">
+		<property name="entityManager" ref="entityManager" />
+	</bean>
+	
+	<bean id="playerService" class="com.xlspaceship.battle.service.impl.PlayerServiceImpl">
 		<property name="playerDAO" ref="playerDAO"/>
 	</bean>
 	
-	<bean id="gameService" class="com.xlspaceship.battle.service.GameServiceImpl">
+	<bean id="spaceShipService" class="com.xlspaceship.battle.service.impl.SpaceShipServiceImpl">
+		<property name="spaceShipDAO" ref="spaceShipDAO"/>
+	</bean>
+	
+	<bean id="shotService" class="com.xlspaceship.battle.service.impl.ShotServiceImpl">
+		<property name="shotDAO" ref="shotDAO"/>
+	</bean>
+	
+	<bean id="gameService" class="com.xlspaceship.battle.service.impl.GameServiceImpl">
 		<property name="gameDAO" ref="gameDAO"/>
 		<property name="playerDAO" ref="playerDAO"/>
 		<property name="spaceShipDAO" ref="spaceShipDAO"/>
+		<property name="shotDAO" ref="shotDAO"/>
 	</bean>
 
 </beans>

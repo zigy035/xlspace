@@ -11,5 +11,5 @@ public interface PlayerService {
 	
 	void addPlayer(Player player);
 
-	List<SpaceShip> getSpaceships(Integer playerId, Integer gameId);
+//	List<SpaceShip> getSpaceships(Integer playerId, Integer gameId);
 }

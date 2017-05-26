@@ -1,6 +1,7 @@
 package com.xlspaceship.battle.model;
 
 import javax.persistence.Column;
+import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
@@ -8,9 +9,13 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.Table;
+import javax.persistence.UniqueConstraint;
 
 import com.xlspaceship.battle.enumeration.ShotStatus;
 
+@Entity
+@Table(name = "shot", uniqueConstraints={@UniqueConstraint(columnNames = {"game_id", "player_id", "row", "col"})})
 public class Shot {
 	
 	@Id
@@ -18,13 +23,13 @@ public class Shot {
 	@Column(name = "id")
 	private Integer id;
 	
-	@ManyToOne(targetEntity = Player.class)
-	@JoinColumn(name = "player_id", nullable = true)
-	private Player player;
-
 	@ManyToOne(targetEntity = Game.class)
 	@JoinColumn(name = "game_id", nullable = true)
 	private Game game;
+	
+	@ManyToOne(targetEntity = Player.class)
+	@JoinColumn(name = "player_id", nullable = true)
+	private Player player;
 	
 	@Column(name = "row")
 	private Integer row;
@@ -32,13 +37,16 @@ public class Shot {
 	@Column(name = "col")
 	private Integer col;
 	
+	@Column(name = "status")
 	@Enumerated(EnumType.ORDINAL)
 	private ShotStatus status;
 	
-	public Shot(Integer row, Integer col) {
+	public Shot() {}
+	
+	/*public Shot(Integer row, Integer col) {
 		this.row = row;
 		this.col = col;
-	}
+	}*/
 	
 	public Integer getId() {
 		return id;

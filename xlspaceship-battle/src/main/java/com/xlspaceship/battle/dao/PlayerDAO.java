@@ -16,6 +16,6 @@ public interface PlayerDAO {
 	
 	List<Shot> getPlayerShots();
 
-	List<SpaceShip> getPlayerSpaceShips(Integer playerId, Integer gameId);
+//	List<SpaceShip> getPlayerSpaceShips(Integer playerId, Integer gameId);
 		
 }

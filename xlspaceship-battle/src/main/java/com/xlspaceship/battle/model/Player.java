@@ -25,6 +25,8 @@ public class Player {
 	@Transient
 	private List<SpaceShip> spaceships;
 	
+	public Player() {}
+	
 	public Player(String fullName) {
 		this.fullName = fullName;
 	}

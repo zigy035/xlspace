@@ -1,9 +1,10 @@
-package com.xlspaceship.battle.dao;
+package com.xlspaceship.battle.dao.impl;
 
 import java.util.List;
 
 import javax.persistence.EntityManager;
 
+import com.xlspaceship.battle.dao.PlayerDAO;
 import com.xlspaceship.battle.model.Player;
 import com.xlspaceship.battle.model.Shot;
 import com.xlspaceship.battle.model.SpaceShip;
@@ -20,7 +21,7 @@ public class PlayerDAOImpl implements PlayerDAO {
 	public Player getPlayer(String playerId) {
 		return (Player) entityManager
 				.createQuery("FROM Player p WHERE id = :playerId")
-				.setParameter("playerId", "playerId")
+				.setParameter("playerId", playerId)
 				.getSingleResult();
 	}
 
@@ -47,14 +48,16 @@ public class PlayerDAOImpl implements PlayerDAO {
 				.getResultList();
 	}
 
-	@SuppressWarnings("unchecked")
+	/*@SuppressWarnings("unchecked")
 	@Override
 	public List<SpaceShip> getPlayerSpaceShips(Integer playerId, Integer gameId) {
 		return (List<SpaceShip>)entityManager.createQuery("FROM SpaceShip s "
 				+ "JOIN Player p ON s.playerId = p.id "
 				+ "JOIN Game g ON g.playerOne.id = p.id "
 				+ "WHERE s.playerId = :playerId AND p.gameId = :gameId")
+				.setParameter("playerId", playerId)
+				.setParameter("gameId", gameId)
 				.getResultList();
-	}
+	}*/
 
 }

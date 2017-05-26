@@ -14,5 +14,5 @@ public interface GameService {
 	
 	void addGame(Game game, Player playerOne, Player playerTwo);
 	
-	List<Shot> shotAndGetResults(List<Shot> shots, Integer gameId);
+	void shootSalvo(List<Shot> shots, Integer gameId, Integer playerOneId, Integer playerTwoId);
 }

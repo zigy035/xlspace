@@ -1,9 +1,10 @@
-package com.xlspaceship.battle.dao;
+package com.xlspaceship.battle.dao.impl;
 
 import java.util.List;
 
 import javax.persistence.EntityManager;
 
+import com.xlspaceship.battle.dao.SpaceShipDAO;
 import com.xlspaceship.battle.model.SpaceShip;
 
 public class SpaceShipDAOImpl implements SpaceShipDAO {
@@ -21,11 +22,10 @@ public class SpaceShipDAOImpl implements SpaceShipDAO {
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<SpaceShip> getPlayerSpaceShips(Integer playerId, Integer gameId) {
+	public List<SpaceShip> getPlayerSpaceShips(Integer playerId) {
 		return (List<SpaceShip>)entityManager.createQuery("FROM SpaceShip s "
-				+ "JOIN Player p ON s.playerId = p.id "
-				+ "JOIN Game g ON g.playerOne.id = p.id "
-				+ "WHERE s.playerId = :playerId AND p.gameId = :gameId")
+				+ "WHERE s.player.id = :playerId")
+				.setParameter("playerId", playerId)
 				.getResultList();
 	}
 

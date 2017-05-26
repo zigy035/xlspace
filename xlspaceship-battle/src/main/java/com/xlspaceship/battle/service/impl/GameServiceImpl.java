@@ -1,31 +1,31 @@
-package com.xlspaceship.battle.service;
+package com.xlspaceship.battle.service.impl;
 
 import java.util.Arrays;
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.xlspaceship.battle.dao.GameDAO;
 import com.xlspaceship.battle.dao.PlayerDAO;
+import com.xlspaceship.battle.dao.ShotDAO;
 import com.xlspaceship.battle.dao.SpaceShipDAO;
 import com.xlspaceship.battle.enumeration.ShotStatus;
 import com.xlspaceship.battle.model.Game;
 import com.xlspaceship.battle.model.Player;
 import com.xlspaceship.battle.model.Shot;
 import com.xlspaceship.battle.model.SpaceShip;
+import com.xlspaceship.battle.service.GameService;
 
 @Transactional
 public class GameServiceImpl implements GameService {
 	
-	@Autowired
 	GameDAO gameDAO;
 	
-	@Autowired
 	PlayerDAO playerDAO;
 	
-	@Autowired
 	SpaceShipDAO spaceShipDAO;
+	
+	ShotDAO shotDAO; 
 	
 	@Override
 	public Game getGameInfo(Integer gameId) {
@@ -56,23 +56,30 @@ public class GameServiceImpl implements GameService {
 	}
 	
 	@Override
-	public List<Shot> shotAndGetResults(List<Shot> shots, Integer gameId) {
-		Game game = gameDAO.getGameInfo(gameId);
-		List<SpaceShip> spaceShips = spaceShipDAO.getPlayerSpaceShips(game.getPlayerTwo().getId(), gameId);
+	public void shootSalvo(List<Shot> shots, Integer gameId, Integer playerOneId, Integer playerTwoId) {
+		List<SpaceShip> spaceShips = spaceShipDAO.getPlayerSpaceShips(playerTwoId);
 		for (Shot shot : shots) {
 			for (SpaceShip spaceShip : spaceShips) {
+				shot.setStatus(ShotStatus.MISSED);
 				if (spaceShip.getRow().equals(shot.getRow()) && spaceShip.getCol().equals(shot.getCol())) {
-					//delete ship + mark shot as hit
-					spaceShipDAO.deleteSpaceShip(spaceShip);
+					// mark shot as hit and delete ship 
 					shot.setStatus(ShotStatus.HIT);
-				} else {
-					// mark shot as miss
-					shot.setStatus(ShotStatus.MISSED);
+					spaceShipDAO.deleteSpaceShip(spaceShip);
+					break;
 				}
 			}
-			
+			saveShot(shot);
 		}
-		return shots;
+	}
+	
+	private void saveShot(Shot shot) {
+		Shot existShot = shotDAO.getShot(shot.getGame().getId(), shot.getPlayer().getId(), shot.getRow(), shot.getCol());
+		if (existShot == null) {
+			shotDAO.addShot(shot);
+		} else {
+			existShot.setStatus(shot.getStatus());
+			shotDAO.updateShot(existShot);
+		}
 	}
 	
 	public void setGameDAO(GameDAO gameDAO) {
@@ -85,6 +92,10 @@ public class GameServiceImpl implements GameService {
 
 	public void setSpaceShipDAO(SpaceShipDAO spaceShipDAO) {
 		this.spaceShipDAO = spaceShipDAO;
+	}
+
+	public void setShotDAO(ShotDAO shotDAO) {
+		this.shotDAO = shotDAO;
 	}
 
 }

@@ -10,7 +10,6 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -25,6 +24,10 @@ import com.xlspaceship.battle.model.Shot;
 import com.xlspaceship.battle.model.SpaceShip;
 import com.xlspaceship.battle.service.GameService;
 import com.xlspaceship.battle.service.PlayerService;
+import com.xlspaceship.battle.service.ShotService;
+import com.xlspaceship.battle.service.SpaceShipService;
+
+import fireSalvoForm.FireSalvoForm;
 
 @Controller
 @RequestMapping("/")
@@ -34,7 +37,9 @@ public class GameController {
 
 	private static final String EMPTY = ".";
 
-	private static final String SPACE = "_";
+	private static final String SPACESHIP_MARK = "*";
+	private static final String SPACESHIP_HIT = "X";
+	private static final String SPACESHIP_MISS = "-";
 
 	private static final String XLABS = "XLABS";
 	
@@ -85,14 +90,17 @@ public class GameController {
 		quaterOffsetMap.put(4, new QuaterOffset(8, 8));
 	}
 	
-	
-	
-	
 	@Autowired
 	GameService gameService;
 
 	@Autowired
 	PlayerService playerService;
+	
+	@Autowired
+	SpaceShipService spaceShipsService;
+	
+	@Autowired
+	ShotService shotService;
 
 	
 	@RequestMapping(method = RequestMethod.GET)
@@ -150,7 +158,7 @@ public class GameController {
 		if (CollectionUtils.isNotEmpty(opponents)) {
 			playerTwo = opponents.get(random.nextInt(opponents.size()-1));
 			Character ch2 = XLABS.charAt(random.nextInt(XLABS.length()-1));
-			playerTwo.setSpaceships(generateSpaceShips(ch2 ,2));
+			playerTwo.setSpaceships(generateSpaceShips(ch2, 2));
 		}
 		
 		Game game = new Game();
@@ -169,10 +177,10 @@ public class GameController {
 		for (int i=0; i<16; i++) {
 			for (int j=0; j<16; j++) {
 				if (doesShipExist(i, j, playerOne.getSpaceships())) {
-					sb.append("*"); //.append(SPACE);
+					sb.append(SPACESHIP_MARK); //.append(SPACE);
 				} else if (doesShipExist(i, j, playerTwo.getSpaceships())) {
 					// should display only destroyed (or hit) ships
-					sb.append("*"); //.append(SPACE);
+					sb.append(SPACESHIP_MARK); //.append(SPACE);
 				} else {
 					sb.append(EMPTY);
 				}
@@ -190,21 +198,28 @@ public class GameController {
 		return "";
 	}
 	
-	@RequestMapping(value = "/protocol/user/game/{game_id}/fire", method = RequestMethod.PUT)
+	@RequestMapping(value = "/protocol/user/game/fire", method = RequestMethod.POST)
 	@ResponseBody
-	public GameDTO fireSalvo(@RequestBody String salvo, @PathVariable("game_id") String gameId) {
+	public GameDTO fireSalvo(@RequestBody FireSalvoForm fireSalvoForm) {
 		
-		Integer gid = Integer.valueOf(gameId);
-		Game game = gameService.getGameInfo(gid);
+		//validate form...
+		System.out.println("GAME_ID JE: " + fireSalvoForm.getGameId());
+		System.out.println("SALVO JE: " + fireSalvoForm.getSalvo());
+		
+		Integer gameId = Integer.valueOf(fireSalvoForm.getGameId());
+		Game game = gameService.getGameInfo(gameId);
+		Integer playerOneId = game.getPlayerOne().getId();
+		Integer playerTwoId = game.getPlayerTwo().getId();
 		
 		GameDTO gameDTO = new GameDTO();
 		gameDTO.setGameId(String.valueOf(game.getId()));
 		gameDTO.setFullName(game.getPlayerTwo().getFullName());
-		gameDTO.setPlayerId(String.valueOf(game.getPlayerTwo().getId()));
-		gameDTO.setStarting(String.valueOf(game.getPlayerOne().getId()));
+		gameDTO.setPlayerId(String.valueOf(playerTwoId));
+		gameDTO.setStarting(String.valueOf(playerOneId));
 		gameDTO.setTable("404");
 		
 		//salvo should be in format RxC-RxC-...-RxC
+		String salvo = fireSalvoForm.getSalvo();
 		List<Shot> shots = new ArrayList<>();
 		if (StringUtils.isBlank(salvo)) {
 			return gameDTO;
@@ -224,30 +239,41 @@ public class GameController {
 						}
 						int row = Integer.valueOf(String.valueOf(charr[0]), 16);
 						int col = Integer.valueOf(String.valueOf(charr[2]), 16);
-						shots.add(new Shot(row, col));
+						
+						Shot shot = new Shot();
+						shot.setGame(game);
+						shot.setPlayer(game.getPlayerOne());
+						shot.setRow(row);
+						shot.setCol(col);
+						shots.add(shot);
 					}
 				}
 			}
 		}
 		
 		// proveri da li ne gadja svoje brodove :)
+		// da li je vec gadjao tu (shot exist)
 		
 		// uzmi list shipova za playeraTwo i proveri da li ima pogodaka (setujes shot statuse i brises shipove)
-		List<Shot> result = gameService.shotAndGetResults(shots, gid);
-		List<SpaceShip> playerOneShips = playerService.getSpaceships(game.getPlayerOne().getId(), gid);
+		gameService.shootSalvo(shots, gameId, playerOneId, playerTwoId);
+		List<Shot> shotResult = shotService.getShots(gameId, playerOneId);
+		List<SpaceShip> playerOneShips = spaceShipsService.getPlayerSpaceShips(playerOneId);
+		List<SpaceShip> playerTwoShips = spaceShipsService.getPlayerSpaceShips(playerTwoId);
 		
 		// 'X' means hit, '-' means missed
 		StringBuilder sb = new StringBuilder();
 		for (int i=0; i<16; i++) {
 			for (int j=0; j<16; j++) {
 				if (doesShipExist(i, j, playerOneShips)) {
-					sb.append("*");
+					sb.append(SPACESHIP_MARK);
+				} else if (doesShipExist(i, j, playerTwoShips)) {
+					sb.append(SPACESHIP_MARK);
 				} else {
-					Shot shot = getShot(i, j, result);
+					Shot shot = getShot(i, j, shotResult);
 					if (shot != null) {
-						sb.append(shot.getStatus().equals(ShotStatus.HIT) ? "X" : "-");
+						sb.append(shot.getStatus().equals(ShotStatus.HIT) ? SPACESHIP_HIT : SPACESHIP_MISS);
 					} else {
-						sb.append(".");
+						sb.append(EMPTY);
 					}
 				}
 			}

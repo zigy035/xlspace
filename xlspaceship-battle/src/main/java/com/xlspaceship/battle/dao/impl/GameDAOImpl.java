@@ -1,7 +1,8 @@
-package com.xlspaceship.battle.dao;
+package com.xlspaceship.battle.dao.impl;
 
 import javax.persistence.EntityManager;
 
+import com.xlspaceship.battle.dao.GameDAO;
 import com.xlspaceship.battle.model.Game;
 
 public class GameDAOImpl implements GameDAO {
@@ -16,7 +17,7 @@ public class GameDAOImpl implements GameDAO {
 	public Game getGameInfo(Integer gameId) {
 		return (Game) entityManager
 				.createQuery("FROM Game g WHERE g.id = :gameId")
-				.setParameter("gameId", "gameId")
+				.setParameter("gameId", gameId)
 				.getSingleResult();
 	}
 

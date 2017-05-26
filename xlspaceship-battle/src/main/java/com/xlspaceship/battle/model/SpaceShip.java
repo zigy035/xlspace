@@ -28,6 +28,8 @@ public class SpaceShip {
 	@Column(name = "col")
 	private Integer col;
 	
+	public SpaceShip() {}
+	
 	public SpaceShip(Integer row, Integer col) {
 		this.row = row;
 		this.col = col;

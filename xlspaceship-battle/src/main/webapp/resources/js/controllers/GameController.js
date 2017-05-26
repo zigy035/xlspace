@@ -1,7 +1,7 @@
 'use strict';
 
-var gameApp = angular.module('gameApp', ['ngCookies', 'ngDialog']);
-gameApp.controller('gameController', function($scope, $http, $cookieStore, ngDialog) {
+var gameApp = angular.module('gameApp', []);
+gameApp.controller('gameController', function($scope, $http) {
     
     $scope.createNewGame = function() {    	
 		$http({
@@ -16,35 +16,58 @@ gameApp.controller('gameController', function($scope, $http, $cookieStore, ngDia
 	        }, 
 		}).then(function(response) {
 			
-			console.log(response.data);
+			console.log("NEW_GAME: " + response.data);
 			
-			$scope.gameId = response.data.gameId;
-			$scope.fullName = response.data.fullName;
-			$scope.playerId = response.data.playerId;
-			$scope.starting = response.data.starting;
-			$scope.table = response.data.table;
+//			$scope.game = response.data;
+			
+			$scope.game = {
+				gameId : response.data.gameId,
+				fullName : response.data.fullName,
+				playerId : response.data.playerId,
+				starting : response.data.starting,
+				table : response.data.table
+			};
+			
 		});
     };
     
-    $scope.fireSalvo = function(gameId) {    	
+    $scope.fireSalvo = function() {  
+    	
+    	console.log("GAME_ID: ");
+    	
 		$http({
-			method: 'PUT', 
-			url: "protocol/user/game/" + gameId + "/fire", 
+			method: 'POST', 
+//			url: "protocol/user/game/" + gameId + "/fire", 
+			url: "protocol/user/game/fire", 
 			data: {
-	    		salvo : $scope.salvo
+	    		gameId : $scope.fireSalvoForm.gameId,
+	    		salvo : $scope.fireSalvoForm.salvo
 	        }, 
 		}).then(function(response) {
 			
-			console.log(response.data);
+			console.log("FIRE_SALVO: " + response.data);
 			
-			$scope.gameId = response.data.gameId;
-			$scope.fullName = response.data.fullName;
-			$scope.playerId = response.data.playerId;
-			$scope.starting = response.data.starting;
-			$scope.table = response.data.table;
+			$scope.game = {
+//				gameId : response.data.gameId,
+//				fullName : response.data.fullName,
+//				playerId : response.data.playerId,
+//				starting : response.data.starting,
+				table : response.data.table
+			};
 		});
     };
     
+    /*$scope.fireSalvo = function(gid) {
+        var data = $.param({
+            salvo: $scope.salvo
+        });
+
+        $http.put("protocol/user/game/" + gid + "/fire")
+        .success(function (data, status, headers) {
+        	$scope.table = response.data.table;
+        });
+        
+    };*/
     
 	
 });
