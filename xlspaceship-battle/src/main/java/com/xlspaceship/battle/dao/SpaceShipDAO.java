@@ -9,7 +9,9 @@ public interface SpaceShipDAO {
 	void addSpaceShip(SpaceShip spaceShip);
 	
 	List<SpaceShip> getPlayerSpaceShips(Integer playerId);
-
+	
+	Long getPlayerSpaceShipsCount(Integer playerId);
+	
 	void deleteSpaceShip(SpaceShip spaceShip);
 	
 }

@@ -15,6 +15,11 @@ public class SpaceShipServiceImpl implements SpaceShipService {
 		return spaceShipDAO.getPlayerSpaceShips(playerId);
 	}
 
+	@Override
+	public Long getPlayerSpaceShipsCount(Integer playerId) {
+		return spaceShipDAO.getPlayerSpaceShipsCount(playerId);
+	}
+	
 	// Inject DAO
 	public void setSpaceShipDAO(SpaceShipDAO spaceShipDAO) {
 		this.spaceShipDAO = spaceShipDAO;

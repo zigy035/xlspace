@@ -52,22 +52,55 @@ gameApp.controller('gameController', function($scope, $http) {
 				fullName : response.data.fullName,
 				playerId : response.data.playerId,
 				table : response.data.table,
+				error : response.data.error,
 				playerTurn : response.data.playerTurn
 			};
 		});
     };
     
-    /*$scope.fireSalvo = function(gid) {
-        var data = $.param({
-            salvo: $scope.salvo
-        });
-
-        $http.put("protocol/user/game/" + gid + "/fire")
-        .success(function (data, status, headers) {
-        	$scope.table = response.data.table;
-        });
-        
-    };*/
+    $scope.receiveSalvo = function() {  
+    	
+    	console.log("GAME_ID: " + $scope.game.gameId);
+    	
+		$http({
+			method: 'PUT', 
+			url: "protocol/game/receive/" + $scope.game.gameId, 
+//			data: {
+//	    		gameId : $scope.fireSalvoForm.gameId,
+//	    		salvo : $scope.fireSalvoForm.salvo
+//	        }, 
+		}).then(function(response) {
+			
+			console.log("RECEIVE_SALVO: " + response.data);
+			
+			$scope.game = {
+				gameId : response.data.gameId,
+				fullName : response.data.fullName,
+				playerId : response.data.playerId,
+				table : response.data.table,
+				error : response.data.error,
+				playerTurn : response.data.playerTurn
+			};
+		});
+    };
     
-	
+    /*
+     var data = $.param({
+                firstName: $scope.firstName,
+                lastName: $scope.lastName,
+                age: $scope.age
+            });
+
+            $http.put('/api/Default?'+ data)
+            .success(function (data, status, headers) {
+                $scope.ServerResponse = data;
+            })
+            .error(function (data, status, header, config) {
+                $scope.ServerResponse =  htmlDecode("Data: " + data +
+                    "\n\n\n\nstatus: " + status +
+                    "\n\n\n\nheaders: " + header +
+                    "\n\n\n\nconfig: " + config);
+            });
+     */
+    
 });

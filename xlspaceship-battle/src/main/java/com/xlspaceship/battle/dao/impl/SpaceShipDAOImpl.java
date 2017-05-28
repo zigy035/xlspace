@@ -28,9 +28,18 @@ public class SpaceShipDAOImpl implements SpaceShipDAO {
 				.setParameter("playerId", playerId)
 				.getResultList();
 	}
+	
+	@Override
+	public Long getPlayerSpaceShipsCount(Integer playerId) {
+		return (Long)entityManager.createQuery("SELECT COUNT(s.id) FROM SpaceShip s "
+				+ "WHERE s.player.id = :playerId")
+				.setParameter("playerId", playerId)
+				.getSingleResult();
+	}
 
 	@Override
 	public void deleteSpaceShip(SpaceShip spaceShip) {
 		entityManager.remove(spaceShip);
 	}
+
 }

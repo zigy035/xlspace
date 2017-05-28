@@ -5,56 +5,101 @@ import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
 
-import com.xlspaceship.battle.dto.GameDTO;
+import com.xlspaceship.battle.dao.ShotDAO;
+import com.xlspaceship.battle.dao.SpaceShipDAO;
+import com.xlspaceship.battle.exception.InvalidFormatException;
+import com.xlspaceship.battle.exception.PlayerTwoTurnException;
+import com.xlspaceship.battle.exception.SelfShotException;
+import com.xlspaceship.battle.exception.ShotCountExceededException;
+import com.xlspaceship.battle.exception.ShotExistsException;
 import com.xlspaceship.battle.form.FireSalvoForm;
 import com.xlspaceship.battle.model.Game;
 import com.xlspaceship.battle.model.Shot;
+import com.xlspaceship.battle.model.SpaceShip;
 
 public class GameValidator {
 	
 	private static final String HEX_CHARS = "0123456789abcdef";
 	
-	public List<Shot> fireSalvoValidate(GameDTO gameDTO, FireSalvoForm fireSalvoForm, Game game) {
+	private ShotDAO shotDAO;
+	
+	private SpaceShipDAO spaceShipDAO;
+	
+	public List<Shot> fireSalvoValidate(FireSalvoForm fireSalvoForm, Game game) throws Exception {
 		
 		// da li je na njega red da gadja (playerTurn) - OVO!!!
+		if (!game.getPlayerOne().getId().equals(game.getPlayerTurn().getId())) {
+			throw new PlayerTwoTurnException();
+		}
 		
-		//salvo should be in format RxC-RxC-...-RxC
 		String salvo = fireSalvoForm.getSalvo();
 		List<Shot> shots = new ArrayList<>();
 		if (StringUtils.isBlank(salvo)) {
-			return null;
-		} else {
-			String[] rcArr = salvo.trim().split("-");
-			if (rcArr == null || rcArr.length == 0) {
-				return null;
+			throw new InvalidFormatException();
+		}
+		
+		String[] rcArr = salvo.trim().split("-");
+		if (rcArr == null || rcArr.length == 0) {
+			throw new InvalidFormatException();
+		}
+		
+		//salvo should be in format RxC-RxC-...-RxC
+		for (int i=0; i<rcArr.length; i++) {
+			if (rcArr[i].length() != 3) {
+				throw new InvalidFormatException();
 			} else {
-				for (int i=0; i<rcArr.length; i++) {
-					if (rcArr[i].length() != 3) {
-						return null;
-					} else {
-						char[] charr = rcArr[i].toCharArray();
-						if (HEX_CHARS.indexOf(charr[0]) == -1 || 
-								charr[1] != 'x' || HEX_CHARS.indexOf(charr[2]) == -1) {
-							return null;
-						}
-						int row = Integer.valueOf(String.valueOf(charr[0]), 16);
-						int col = Integer.valueOf(String.valueOf(charr[2]), 16);
-						
-						Shot shot = new Shot();
-						shot.setGame(game);
-						shot.setPlayer(game.getPlayerOne());
-						shot.setRow(row);
-						shot.setCol(col);
-						shots.add(shot);
-					}
+				char[] charr = rcArr[i].toCharArray();
+				if (HEX_CHARS.indexOf(charr[0]) == -1 || 
+						charr[1] != 'x' || HEX_CHARS.indexOf(charr[2]) == -1) {
+					throw new InvalidFormatException();
+				}
+				int row = Integer.valueOf(String.valueOf(charr[0]), 16);
+				int col = Integer.valueOf(String.valueOf(charr[2]), 16);
+				
+				Shot shot = new Shot();
+				shot.setGame(game);
+				shot.setPlayer(game.getPlayerOne());
+				shot.setRow(row);
+				shot.setCol(col);
+				shots.add(shot);
+			}
+		}
+		
+		// broj shotova == broj ship-ova
+		List<SpaceShip> spaceShips = spaceShipDAO.getPlayerSpaceShips(game.getPlayerOne().getId());
+		if (shots.size() > spaceShips.size()) {
+			throw new ShotCountExceededException();
+		}
+
+		// proveri da li ne gadja svoje brodove :)
+		for (Shot shot : shots) {
+			for (SpaceShip spaceShip : spaceShips) {
+				if (shot.getRow().equals(spaceShip.getRow()) && shot.getCol().equals(spaceShip.getCol())) {
+					throw new SelfShotException();
 				}
 			}
 		}
 		
-		return shots;
 		
-		
-		// proveri da li ne gadja svoje brodove :)
 		// da li je vec gadjao tu (shot exist)
+		List<Shot> existShots = shotDAO.getShots(game.getId(), game.getPlayerOne().getId());
+		for (Shot shot : shots) {
+			for (Shot exShot : existShots) {
+				if (shot.getRow().equals(exShot.getRow()) && shot.getCol().equals(exShot.getCol())) {
+					throw new ShotExistsException();
+				}
+			}
+		}
+				
+		return shots;
 	}
+
+	public void setShotDAO(ShotDAO shotDAO) {
+		this.shotDAO = shotDAO;
+	}
+
+	public void setSpaceShipDAO(SpaceShipDAO spaceShipDAO) {
+		this.spaceShipDAO = spaceShipDAO;
+	}
+	
 }

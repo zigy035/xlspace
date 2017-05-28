@@ -40,7 +40,7 @@
 		<p ng-show="game.playerTurn">Player Turn: {{game.playerTurn}}</p>
 		<p style="color:red" ng-show="game.error">{{game.error}}</p>
 		
-		<textarea id="qual" rows="16" cols="40" style="resize:none">{{game.table}}</textarea>
+		<textarea id="qual" rows="16" cols="32" style="resize:none" disabled="disabled">{{game.table}}</textarea>
 		
 		<form id="fireForm" ng-submit="fireSalvo()" method="post">
 			<table>
@@ -57,6 +57,14 @@
 				<input class="btn btn_link" type="submit" value="Fire" style="width: 150px" />
 			</p>
 		</form>
+		
+<!-- 		<form id="receiveForm" ng-submit="receiveSalvo({{game.gameId}})"> -->
+		<form id="receiveForm" ng-submit="receiveSalvo()">
+			<input type="hidden" name="gameId" ng-model="game.gameId" required/>
+        	<input class="btn btn_link" type="submit" value="Receive" style="width: 150px" />
+		</form>
+		
+<!-- 		<a href="javascript:void(0)" class="btn btn_link" ng-click="receiveSalvo({{game.gameId}})">Receive</a> -->
 	</div>
 	
 	<script src="resources/js/controllers/GameController.js"></script>

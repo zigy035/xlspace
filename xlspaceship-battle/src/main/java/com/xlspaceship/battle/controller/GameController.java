@@ -10,6 +10,7 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -59,7 +60,7 @@ public class GameController {
 	private static final String [] S_CLASS_FORM = {"0:1", "0:2", "1:0", "2:1", "2:2", "3:3", "4:1", "4:2"};
 	
 	private static final Map<Character, String[]> battleshipFormMap = new HashMap<>();
-	private static final Map<Integer, QuaterOffset> quaterOffsetMap = new HashMap<>();
+	private static final Map<Integer, QuarterOffset> quarterOffsetMap = new HashMap<>();
 
 	static {
 		battleshipFormMap.put('X', WINGER_FORM);
@@ -68,7 +69,7 @@ public class GameController {
 		battleshipFormMap.put('B', B_CLASS_FORM);
 		battleshipFormMap.put('S', S_CLASS_FORM);
 		
-		/* QUATERS
+		/* QUARTERS
 		 * FIRST			SECOND
 		0 0 0 0 0 0 0 0   0 0 0 0 0 0 0 0 
 		0 0 0 0 0 0 0 0   0 0 0 0 0 0 0 0 
@@ -88,10 +89,10 @@ public class GameController {
 		0 0 0 0 0 0 0 0   0 0 0 0 0 0 0 0 
 		0 0 0 0 0 0 0 0   0 0 0 0 0 0 0 0 
 		 */
-		quaterOffsetMap.put(1, new QuaterOffset(0, 0));
-		quaterOffsetMap.put(2, new QuaterOffset(0, 8));
-		quaterOffsetMap.put(3, new QuaterOffset(8, 0));
-		quaterOffsetMap.put(4, new QuaterOffset(8, 8));
+		quarterOffsetMap.put(1, new QuarterOffset(0, 0));
+		quarterOffsetMap.put(2, new QuarterOffset(0, 8));
+		quarterOffsetMap.put(3, new QuarterOffset(8, 0));
+		quarterOffsetMap.put(4, new QuarterOffset(8, 8));
 	}
 	
 	@Autowired
@@ -115,31 +116,10 @@ public class GameController {
 		return "index";
 	}
 	
-	/*
-	XLSS-1: As a player, I want to receive a new simulation request for a simulation with
-	another player.	This first story is all about setting up a game with another player. 
-	On the endpoint we define here, your XL Spaceship instance will be challenged by another 
-	XL Spaceship instance. The challenging instance will indicate on which address/port it is 
-	reachable for playing the game. The response should contain the unique game_id of this match. 
-	It also contains the starting player, determined at random.
-	
-	 {
-		"user_id": "xebialabs-1",
-		"full_name": "XebiaLabs Opponent",
-		"spaceship_protocol": {
-		"hostname": "127.0.0.1",
-		"port": 9001
-		}
-		}
-		JSON
-		{
-		"user_id": "player",
-		"full_name": "Assessment Player",
-		"game_id": "match-1",
-		"starting": "xebialabs-1"
-	}
-
-	
+	/*	
+	1) add salvo input fields
+	2) PUT method should be applied
+	3) refactoring (GameDTO - Game relation)...
 	 */
 	@RequestMapping(value = "/protocol/game/new", method = RequestMethod.POST)
 	@ResponseBody
@@ -172,7 +152,6 @@ public class GameController {
 		game.setHostname(gameForm.getHostname());
 		game.setPort(gameForm.getPort());
 		gameService.addGame(game, playerOne, playerTwo);
-		System.out.println("GAME_ID: " + game.getId());
 		
 		GameDTO gameDTO = new GameDTO();
 		gameDTO.setGameId(String.valueOf(game.getId()));
@@ -180,125 +159,110 @@ public class GameController {
 		gameDTO.setPlayerId(String.valueOf(game.getPlayerTwo().getId()));
 		gameDTO.setStarting(String.valueOf(game.getPlayerOne().getId()));
 		gameDTO.setPlayerTurn(game.getPlayerOne().getFullName());
-		
-		StringBuilder sb = new StringBuilder();
-		for (int i=0; i<16; i++) {
-			for (int j=0; j<16; j++) {
-				if (doesShipExist(i, j, playerOne.getSpaceships())) {
-					sb.append(SPACESHIP_MARK);
-				} else if (doesShipExist(i, j, playerTwo.getSpaceships())) {
-					// should display only destroyed (or hit) ships
-					sb.append(SPACESHIP_MARK);
-				} else {
-					sb.append(EMPTY);
-				}
-				sb.append(SPACE);
-			}
-			sb.append(NEXT_LINE);
-		}
-		gameDTO.setTable(sb.toString().trim());
+		gameDTO.setTable(generateTable(playerOne.getSpaceships(), playerTwo.getSpaceships()));
 		
 		return gameDTO;
-	}
-	
-	@RequestMapping(value = "/protocol/game/{game_id}", method = RequestMethod.PUT)
-	@ResponseBody
-	public String receiveSalvoShots() {
-		return "";
 	}
 	
 	@RequestMapping(value = "/protocol/user/game/fire", method = RequestMethod.POST)
 	@ResponseBody
 	public GameDTO fireSalvo(@RequestBody FireSalvoForm fireSalvoForm) {
 		
-		//validate form...
-		System.out.println("GAME_ID JE: " + fireSalvoForm.getGameId());
-		System.out.println("SALVO JE: " + fireSalvoForm.getSalvo());
-		
 		Integer gameId = Integer.valueOf(fireSalvoForm.getGameId());
 		Game game = gameService.getGameInfo(gameId);
 		Integer playerOneId = game.getPlayerOne().getId();
 		Integer playerTwoId = game.getPlayerTwo().getId();
 		
+		// mozda GameDTO treba da ima samo game, error i table
 		GameDTO gameDTO = new GameDTO();
 		gameDTO.setGameId(String.valueOf(game.getId()));
 		gameDTO.setFullName(game.getPlayerTwo().getFullName());
 		gameDTO.setPlayerId(String.valueOf(playerTwoId));
 		gameDTO.setStarting(String.valueOf(playerOneId));
-		
-		/* OVDE MI TREBA PLAYER_ONE I TWO (GET from DB)
-		 * + extract to one private method
-		 * 
-		 * 
 		gameDTO.setPlayerTurn(game.getPlayerOne().getFullName());
 		
-		StringBuilder sb = new StringBuilder();
-		for (int i=0; i<16; i++) {
-			for (int j=0; j<16; j++) {
-				if (doesShipExist(i, j, playerOne.getSpaceships())) {
-					sb.append(SPACESHIP_MARK);
-				} else if (doesShipExist(i, j, playerTwo.getSpaceships())) {
-					// should display only destroyed (or hit) ships
-					sb.append(SPACESHIP_MARK);
-				} else {
-					sb.append(EMPTY);
-				}
-				sb.append(SPACE);
-			}
-			sb.append(NEXT_LINE);
-		}
-		gameDTO.setTable(sb.toString().trim());
-		*/
-		
-		List<Shot> shots = gameValidator.fireSalvoValidate(gameDTO, fireSalvoForm, game);
-		if (shots == null) {
-			gameDTO.setError("Code " + ERROR_CODE + ": Invalid input!");
+		//validate input		
+		List<Shot> shots;
+		try {
+			shots = gameValidator.fireSalvoValidate(fireSalvoForm, game);
+		} catch (Exception e) {
+			gameDTO.setError(e.getMessage());
+			List<SpaceShip> playerOneShips = spaceShipsService.getPlayerSpaceShips(playerOneId);
+			List<SpaceShip> playerTwoShips = spaceShipsService.getPlayerSpaceShips(playerTwoId);
+			gameDTO.setTable(generateTable(playerOneShips, playerTwoShips));
+			
 			return gameDTO;
 		}
 		
-		// uzmi list shipova za playeraTwo i proveri da li ima pogodaka (setujes shot statuse i brises shipove)
+		// perform shoot: add/update shots and remove ships that are hit
 		gameService.shootSalvo(shots, gameId, playerOneId, playerTwoId);
 		List<Shot> shotResult = shotService.getShots(gameId, playerOneId);
 		List<SpaceShip> playerOneShips = spaceShipsService.getPlayerSpaceShips(playerOneId);
 		List<SpaceShip> playerTwoShips = spaceShipsService.getPlayerSpaceShips(playerTwoId);
 		
-		// 'X' means hit, '-' means missed
-		StringBuilder sb = new StringBuilder();
-		for (int i=0; i<16; i++) {
-			for (int j=0; j<16; j++) {
-				if (doesShipExist(i, j, playerOneShips)) {
-					sb.append(SPACESHIP_MARK);
-				} else if (doesShipExist(i, j, playerTwoShips)) {
-					sb.append(SPACESHIP_MARK);
-				} else {
-					Shot shot = getShot(i, j, shotResult);
-					if (shot != null) {
-						sb.append(shot.getStatus().equals(ShotStatus.HIT) ? SPACESHIP_HIT : SPACESHIP_MISS);
-					} else {
-						sb.append(EMPTY);
-					}
-				}
-				sb.append(SPACE);
-			}
-			sb.append(NEXT_LINE);
-		}
-		
-		gameDTO.setTable(sb.toString().trim());
+		gameDTO.setPlayerTurn(game.getPlayerTwo().getFullName());
+		gameDTO.setTable(generateTable(playerOneShips, playerTwoShips, shotResult));
 		
 		return gameDTO;
 	}
 	
-	private List<SpaceShip> generateSpaceShips(Character ch, int quater) {
+	@RequestMapping(value = "/protocol/game/receive/{gid}", method = RequestMethod.PUT)
+	@ResponseBody
+	public GameDTO receiveSalvoShots(@PathVariable("gid") String gid) {
+		
+		Integer gameId = Integer.valueOf(gid);
+		Game game = gameService.getGameInfo(gameId);
+		Integer playerOneId = game.getPlayerOne().getId();
+		Integer playerTwoId = game.getPlayerTwo().getId();
+		
+		// mozda GameDTO treba da ima samo game, error i table
+		GameDTO gameDTO = new GameDTO();
+		gameDTO.setGameId(String.valueOf(game.getId()));
+		gameDTO.setFullName(game.getPlayerTwo().getFullName());
+		gameDTO.setPlayerId(String.valueOf(playerTwoId));
+		gameDTO.setPlayerTurn(game.getPlayerTwo().getFullName());
+		
+		// get number of p2 battle ships and generate random shots
+		// random first time (when no p2 shots), after might be some logic 
+		// to create shot near HIT place(s)
+		
+		Long playerTwoShipsCount = spaceShipsService.getPlayerSpaceShipsCount(playerTwoId);
+		Random random = new Random();
+		List<Shot> shots = new ArrayList<>();
+		for (int i=0; i<playerTwoShipsCount; i++) {
+			int rowIndex = random.nextInt(HEX_CHARS.length()-1);
+			int colIndex = random.nextInt(HEX_CHARS.length()-1);
+			Shot shot = new Shot();
+			shot.setGame(game);
+			shot.setPlayer(game.getPlayerTwo());
+			shot.setRow(Integer.valueOf(String.valueOf(HEX_CHARS.charAt(rowIndex)), 16));
+			shot.setCol(Integer.valueOf(String.valueOf(HEX_CHARS.charAt(colIndex)), 16));
+			shots.add(shot);
+		}
+		
+		// perform shoot: add/update shots and remove ships that are hit
+		gameService.shootSalvo(shots, gameId, playerTwoId, playerOneId);
+		List<Shot> shotResult = shotService.getShots(gameId, playerTwoId);
+		List<SpaceShip> playerOneShips = spaceShipsService.getPlayerSpaceShips(playerOneId);
+		List<SpaceShip> playerTwoShips = spaceShipsService.getPlayerSpaceShips(playerTwoId);
+		
+		gameDTO.setPlayerTurn(game.getPlayerOne().getFullName());
+		gameDTO.setTable(generateTable(playerOneShips, playerTwoShips, shotResult));
+		
+		return gameDTO;
+	}
+	
+	private List<SpaceShip> generateSpaceShips(Character ch, int quarter) {
 		Random random = new Random();
 		String[] positions = battleshipFormMap.get(ch);
 		List<SpaceShip> spaceShips = new ArrayList<>();
 		int randomRowColOffset = random.nextInt(3);
-		int quaterRowOffset = quaterOffsetMap.get(quater).getRowOffset();
-		int quaterColOffset = quaterOffsetMap.get(quater).getColOffset();
+		int quarterRowOffset = quarterOffsetMap.get(quarter).getRowOffset();
+		int quarterColOffset = quarterOffsetMap.get(quarter).getColOffset();
 		for (int i=0; i<positions.length; i++) {
 			String[] rowcol = positions[i].split(":");
-			int row = Integer.valueOf(rowcol[0]) + randomRowColOffset + quaterRowOffset;
-			int col = Integer.valueOf(rowcol[1]) + randomRowColOffset + quaterColOffset;
+			int row = Integer.valueOf(rowcol[0]) + randomRowColOffset + quarterRowOffset;
+			int col = Integer.valueOf(rowcol[1]) + randomRowColOffset + quarterColOffset;
 			spaceShips.add(new SpaceShip(row, col));
 		}
 		return spaceShips;
@@ -322,13 +286,57 @@ public class GameController {
 		return null;
 	}
 	
+	private String generateTable(List<SpaceShip> p1Ships, List<SpaceShip> p2Ships) {
+		StringBuilder sb = new StringBuilder();
+		for (int i=0; i<16; i++) {
+			for (int j=0; j<16; j++) {
+				if (doesShipExist(i, j, p1Ships)) {
+					sb.append(SPACESHIP_MARK);
+				} else if (doesShipExist(i, j, p2Ships)) {
+					// should display only destroyed (or hit) ships
+					sb.append(SPACESHIP_MARK);
+				} else {
+					sb.append(EMPTY);
+				}
+				sb.append(SPACE);
+			}
+			sb.append(NEXT_LINE);
+		}
+		return sb.toString().trim();
+	}
+	
+	private String generateTable(List<SpaceShip> p1Ships, List<SpaceShip> p2Ships, List<Shot> shotResult) {
+		// 'X' means hit, '-' means missed
+		StringBuilder sb = new StringBuilder();
+		for (int i=0; i<16; i++) {
+			for (int j=0; j<16; j++) {
+				if (doesShipExist(i, j, p1Ships)) {
+					sb.append(SPACESHIP_MARK);
+				} else if (doesShipExist(i, j, p2Ships)) {
+					sb.append(SPACESHIP_MARK);
+				} else {
+					Shot shot = getShot(i, j, shotResult);
+					if (shot != null) {
+						sb.append(shot.getStatus().equals(ShotStatus.HIT) ? SPACESHIP_HIT : SPACESHIP_MISS);
+					} else {
+						sb.append(EMPTY);
+					}
+				}
+				sb.append(SPACE);
+			}
+			sb.append(NEXT_LINE);
+		}
+		return sb.toString().trim();
+	}
+
+	
 }
 
-class QuaterOffset {
+class QuarterOffset {
 	Integer rowOffset;
 	Integer colOffset;
 	
-	public QuaterOffset(Integer rowOffset, Integer colOffset) {
+	public QuarterOffset(Integer rowOffset, Integer colOffset) {
 		this.rowOffset = rowOffset;
 		this.colOffset = colOffset;
 	}
