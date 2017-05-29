@@ -3,6 +3,7 @@ package com.xlspaceship.battle.validator;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 
 import com.xlspaceship.battle.dao.ShotDAO;
@@ -19,7 +20,7 @@ import com.xlspaceship.battle.model.SpaceShip;
 
 public class GameValidator {
 	
-	private static final String HEX_CHARS = "0123456789abcdef";
+	private static final String HEX_CHARS = "0123456789ABCDEF";
 	
 	private ShotDAO shotDAO;
 	
@@ -32,37 +33,31 @@ public class GameValidator {
 			throw new PlayerTwoTurnException();
 		}
 		
-		String salvo = fireSalvoForm.getSalvo();
+		List<String> salvo = fireSalvoForm.getSalvo();
+		
 		List<Shot> shots = new ArrayList<>();
-		if (StringUtils.isBlank(salvo)) {
+		if (CollectionUtils.isEmpty(salvo)) {
 			throw new InvalidFormatException();
 		}
 		
-		String[] rcArr = salvo.trim().split("-");
-		if (rcArr == null || rcArr.length == 0) {
-			throw new InvalidFormatException();
-		}
-		
-		//salvo should be in format RxC-RxC-...-RxC
-		for (int i=0; i<rcArr.length; i++) {
-			if (rcArr[i].length() != 3) {
+		for (String salvoItem : salvo) {
+			if (StringUtils.isBlank(salvoItem) || salvoItem.length() != 3) {
 				throw new InvalidFormatException();
-			} else {
-				char[] charr = rcArr[i].toCharArray();
-				if (HEX_CHARS.indexOf(charr[0]) == -1 || 
-						charr[1] != 'x' || HEX_CHARS.indexOf(charr[2]) == -1) {
-					throw new InvalidFormatException();
-				}
-				int row = Integer.valueOf(String.valueOf(charr[0]), 16);
-				int col = Integer.valueOf(String.valueOf(charr[2]), 16);
-				
-				Shot shot = new Shot();
-				shot.setGame(game);
-				shot.setPlayer(game.getPlayerOne());
-				shot.setRow(row);
-				shot.setCol(col);
-				shots.add(shot);
 			}
+			
+			char[] charr = salvoItem.toCharArray();
+			if (HEX_CHARS.indexOf(charr[0]) == -1 || charr[1] != 'x' || HEX_CHARS.indexOf(charr[2]) == -1) {
+				throw new InvalidFormatException();
+			}
+			int row = Integer.valueOf(String.valueOf(charr[0]), 16);
+			int col = Integer.valueOf(String.valueOf(charr[2]), 16);
+			
+			Shot shot = new Shot();
+			shot.setGame(game);
+			shot.setPlayer(game.getPlayerOne());
+			shot.setRow(row);
+			shot.setCol(col);
+			shots.add(shot);
 		}
 		
 		// broj shotova == broj ship-ova

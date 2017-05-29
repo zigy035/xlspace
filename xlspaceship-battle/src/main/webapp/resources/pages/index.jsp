@@ -42,7 +42,7 @@
 		
 		<textarea id="qual" rows="16" cols="32" style="resize:none" disabled="disabled">{{game.table}}</textarea>
 		
-		<form id="fireForm" ng-submit="fireSalvo()" method="post">
+		<!-- <form id="fireForm" ng-submit="fireSalvo()" method="post">
 			<table>
 				<tr>
 					<td><label for="gameId">Game ID <b style="color:red">*</b></label></td>
@@ -56,9 +56,18 @@
 			<p>
 				<input class="btn btn_link" type="submit" value="Fire" style="width: 150px" />
 			</p>
+		</form> -->
+		
+		<form id="fireForm" ng-submit="fireSalvo()" method="post">
+			<input type="hidden" name="gameId" ng-model="game.gameId" required/>
+		    
+		    <input ng-model="salvoForm.salvo[0]" type="text" placeholder="RxC" required/>
+		    <input ng-model="salvoForm.salvo[1]" type="text" placeholder="RxC" required/>
+			<input ng-model="salvoForm.salvo[2]" type="text" placeholder="RxC" required/>
+        	
+        	<input class="btn btn_link" type="submit" value="Fire" style="width: 150px" />
 		</form>
 		
-<!-- 		<form id="receiveForm" ng-submit="receiveSalvo({{game.gameId}})"> -->
 		<form id="receiveForm" ng-submit="receiveSalvo()">
 			<input type="hidden" name="gameId" ng-model="game.gameId" required/>
         	<input class="btn btn_link" type="submit" value="Receive" style="width: 150px" />

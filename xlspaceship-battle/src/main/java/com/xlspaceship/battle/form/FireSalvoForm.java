@@ -1,9 +1,11 @@
 package com.xlspaceship.battle.form;
 
+import java.util.List;
+
 public class FireSalvoForm {
 	
 	private String gameId;
-	private String salvo;
+	private List<String> salvo;
 	
 	public String getGameId() {
 		return gameId;
@@ -11,10 +13,10 @@ public class FireSalvoForm {
 	public void setGameId(String gameId) {
 		this.gameId = gameId;
 	}
-	public String getSalvo() {
+	public List<String> getSalvo() {
 		return salvo;
 	}
-	public void setSalvo(String salvo) {
+	public void setSalvo(List<String> salvo) {
 		this.salvo = salvo;
 	}
 	

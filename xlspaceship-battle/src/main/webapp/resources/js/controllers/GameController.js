@@ -28,20 +28,30 @@ gameApp.controller('gameController', function($scope, $http) {
 				table : response.data.table
 			};
 			
+			$scope.salvo = {
+				fields : ['a', 'b', 'c']
+			};
+			
+			$scope.salvoForm = { "salvo": ["0x0", "8x4", "DxA", "AxA", "7xF"] };
+			
+			/*
+				{
+					"salvo": ["0x0", "8x4", "DxA", "AxA", "7xF"]
+				}
+			 */
+			
 		});
     };
     
     $scope.fireSalvo = function() {  
     	
-    	console.log("GAME_ID: ");
+    	console.log("SALVO SHOOTS: " + $scope.salvoForm.salvo[0]);
     	
 		$http({
 			method: 'POST', 
-//			url: "protocol/user/game/" + gameId + "/fire", 
-			url: "protocol/user/game/fire", 
+			url: "protocol/user/game/" + $scope.game.gameId + "/fire", 
 			data: {
-	    		gameId : $scope.fireSalvoForm.gameId,
-	    		salvo : $scope.fireSalvoForm.salvo
+	    		salvo : $scope.salvoForm.salvo
 	        }, 
 		}).then(function(response) {
 			

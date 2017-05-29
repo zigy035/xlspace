@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.xlspaceship.battle.dto.GameDTO;
@@ -164,11 +165,11 @@ public class GameController {
 		return gameDTO;
 	}
 	
-	@RequestMapping(value = "/protocol/user/game/fire", method = RequestMethod.POST)
+	@RequestMapping(value = "/protocol/user/game/{gid}/fire", method = RequestMethod.POST)
 	@ResponseBody
-	public GameDTO fireSalvo(@RequestBody FireSalvoForm fireSalvoForm) {
+	public GameDTO fireSalvo(@PathVariable("gid") String gid, @RequestBody FireSalvoForm form) {
 		
-		Integer gameId = Integer.valueOf(fireSalvoForm.getGameId());
+		Integer gameId = Integer.valueOf(gid);
 		Game game = gameService.getGameInfo(gameId);
 		Integer playerOneId = game.getPlayerOne().getId();
 		Integer playerTwoId = game.getPlayerTwo().getId();
@@ -184,7 +185,7 @@ public class GameController {
 		//validate input		
 		List<Shot> shots;
 		try {
-			shots = gameValidator.fireSalvoValidate(fireSalvoForm, game);
+			shots = gameValidator.fireSalvoValidate(form, game);
 		} catch (Exception e) {
 			gameDTO.setError(e.getMessage());
 			List<SpaceShip> playerOneShips = spaceShipsService.getPlayerSpaceShips(playerOneId);
