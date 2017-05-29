@@ -18,27 +18,22 @@ gameApp.controller('gameController', function($scope, $http) {
 			
 			console.log("NEW_GAME: " + response.data);
 			
-//			$scope.game = response.data;
-			
 			$scope.game = {
 				gameId : response.data.gameId,
 				fullName : response.data.fullName,
 				playerId : response.data.playerId,
 				starting : response.data.starting,
-				table : response.data.table
+				table : response.data.table,
+//				playerTurnShipCount: response.data.playerTurnShipCount
 			};
 			
-			$scope.salvo = {
-				fields : ['a', 'b', 'c']
-			};
+			var salvoArr = [];
+			for (var i = 0; i < response.data.playerTurnShipCount; i++) {
+				salvoArr.push('');
+			}
 			
-			$scope.salvoForm = { "salvo": ["0x0", "8x4", "DxA", "AxA", "7xF"] };
-			
-			/*
-				{
-					"salvo": ["0x0", "8x4", "DxA", "AxA", "7xF"]
-				}
-			 */
+			$scope.salvoForm = { "salvo": salvoArr };
+//			$scope.salvoForm = { "salvo": ["0x0", "8x4", "DxA", "AxA", "7xF"] };
 			
 		});
     };
@@ -65,6 +60,14 @@ gameApp.controller('gameController', function($scope, $http) {
 				error : response.data.error,
 				playerTurn : response.data.playerTurn
 			};
+			
+			var salvoArr = [];
+			for (var i = 0; i < response.data.playerTurnShipCount; i++) {
+				salvoArr.push('');
+			}
+			
+			$scope.salvoForm = { "salvo": salvoArr };
+			
 		});
     };
     
@@ -91,26 +94,15 @@ gameApp.controller('gameController', function($scope, $http) {
 				error : response.data.error,
 				playerTurn : response.data.playerTurn
 			};
+			
+			var salvoArr = [];
+			for (var i = 0; i < response.data.playerTurnShipCount; i++) {
+				salvoArr.push('');
+			}
+			
+			$scope.salvoForm = { "salvo": salvoArr };
+			
 		});
     };
-    
-    /*
-     var data = $.param({
-                firstName: $scope.firstName,
-                lastName: $scope.lastName,
-                age: $scope.age
-            });
-
-            $http.put('/api/Default?'+ data)
-            .success(function (data, status, headers) {
-                $scope.ServerResponse = data;
-            })
-            .error(function (data, status, header, config) {
-                $scope.ServerResponse =  htmlDecode("Data: " + data +
-                    "\n\n\n\nstatus: " + status +
-                    "\n\n\n\nheaders: " + header +
-                    "\n\n\n\nconfig: " + config);
-            });
-     */
     
 });

@@ -162,6 +162,8 @@ public class GameController {
 		gameDTO.setPlayerTurn(game.getPlayerOne().getFullName());
 		gameDTO.setTable(generateTable(playerOne.getSpaceships(), playerTwo.getSpaceships()));
 		
+		gameDTO.setPlayerTurnShipCount(new Long(playerOne.getSpaceships().size()));
+		
 		return gameDTO;
 	}
 	
@@ -190,7 +192,8 @@ public class GameController {
 			gameDTO.setError(e.getMessage());
 			List<SpaceShip> playerOneShips = spaceShipsService.getPlayerSpaceShips(playerOneId);
 			List<SpaceShip> playerTwoShips = spaceShipsService.getPlayerSpaceShips(playerTwoId);
-			gameDTO.setTable(generateTable(playerOneShips, playerTwoShips));
+			List<Shot> p1Shots = shotService.getShots(gameId, playerOneId);
+			gameDTO.setTable(generateTable(playerOneShips, playerTwoShips, p1Shots));
 			
 			return gameDTO;
 		}
@@ -203,6 +206,9 @@ public class GameController {
 		
 		gameDTO.setPlayerTurn(game.getPlayerTwo().getFullName());
 		gameDTO.setTable(generateTable(playerOneShips, playerTwoShips, shotResult));
+		
+		Long p2ShipsCount = spaceShipsService.getPlayerSpaceShipsCount(playerTwoId);
+		gameDTO.setPlayerTurnShipCount(p2ShipsCount);
 		
 		return gameDTO;
 	}
@@ -249,6 +255,9 @@ public class GameController {
 		
 		gameDTO.setPlayerTurn(game.getPlayerOne().getFullName());
 		gameDTO.setTable(generateTable(playerOneShips, playerTwoShips, shotResult));
+		
+		Long p1ShipsCount = spaceShipsService.getPlayerSpaceShipsCount(playerOneId);
+		gameDTO.setPlayerTurnShipCount(p1ShipsCount);
 		
 		return gameDTO;
 	}

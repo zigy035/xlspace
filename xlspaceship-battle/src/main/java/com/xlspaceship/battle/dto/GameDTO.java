@@ -9,6 +9,7 @@ public class GameDTO {
 	private String table;
 	private String error;
 	private String playerTurn;
+	private Long playerTurnShipCount;
 	
 	public String getPlayerId() {
 		return playerId;
@@ -52,6 +53,11 @@ public class GameDTO {
 	public void setPlayerTurn(String playerTurn) {
 		this.playerTurn = playerTurn;
 	}
-	
+	public Long getPlayerTurnShipCount() {
+		return playerTurnShipCount;
+	}
+	public void setPlayerTurnShipCount(Long playerTurnShipCount) {
+		this.playerTurnShipCount = playerTurnShipCount;
+	}
 	
 }
