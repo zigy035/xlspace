@@ -60,15 +60,15 @@ public class GameController {
 	// S-Class (S) Form
 	private static final String [] S_CLASS_FORM = {"0:1", "0:2", "1:0", "2:1", "2:2", "3:3", "4:1", "4:2"};
 	
-	private static final Map<Character, String[]> battleshipFormMap = new HashMap<>();
-	private static final Map<Integer, QuarterOffset> quarterOffsetMap = new HashMap<>();
+	private static final Map<Character, String[]> SPACESHIP_FORM_MAP = new HashMap<>();
+	private static final Map<Integer, QuarterOffset> QUARTER_OFFSET_MAP = new HashMap<>();
 
 	static {
-		battleshipFormMap.put('X', WINGER_FORM);
-		battleshipFormMap.put('L', ANGLE_FORM);
-		battleshipFormMap.put('A', A_CLASS_FORM);
-		battleshipFormMap.put('B', B_CLASS_FORM);
-		battleshipFormMap.put('S', S_CLASS_FORM);
+		SPACESHIP_FORM_MAP.put('X', WINGER_FORM);
+		SPACESHIP_FORM_MAP.put('L', ANGLE_FORM);
+		SPACESHIP_FORM_MAP.put('A', A_CLASS_FORM);
+		SPACESHIP_FORM_MAP.put('B', B_CLASS_FORM);
+		SPACESHIP_FORM_MAP.put('S', S_CLASS_FORM);
 		
 		/* QUARTERS
 		 * FIRST			SECOND
@@ -90,10 +90,10 @@ public class GameController {
 		0 0 0 0 0 0 0 0   0 0 0 0 0 0 0 0 
 		0 0 0 0 0 0 0 0   0 0 0 0 0 0 0 0 
 		 */
-		quarterOffsetMap.put(1, new QuarterOffset(0, 0));
-		quarterOffsetMap.put(2, new QuarterOffset(0, 8));
-		quarterOffsetMap.put(3, new QuarterOffset(8, 0));
-		quarterOffsetMap.put(4, new QuarterOffset(8, 8));
+		QUARTER_OFFSET_MAP.put(1, new QuarterOffset(0, 0));
+		QUARTER_OFFSET_MAP.put(2, new QuarterOffset(0, 8));
+		QUARTER_OFFSET_MAP.put(3, new QuarterOffset(8, 0));
+		QUARTER_OFFSET_MAP.put(4, new QuarterOffset(8, 8));
 	}
 	
 	@Autowired
@@ -190,10 +190,11 @@ public class GameController {
 			shots = gameValidator.fireSalvoValidate(form, game);
 		} catch (Exception e) {
 			gameDTO.setError(e.getMessage());
-			List<SpaceShip> playerOneShips = spaceShipsService.getPlayerSpaceShips(playerOneId);
-			List<SpaceShip> playerTwoShips = spaceShipsService.getPlayerSpaceShips(playerTwoId);
+			List<SpaceShip> p1Ships = spaceShipsService.getPlayerSpaceShips(playerOneId);
+			List<SpaceShip> p2Ships = spaceShipsService.getPlayerSpaceShips(playerTwoId);
 			List<Shot> p1Shots = shotService.getShots(gameId, playerOneId);
-			gameDTO.setTable(generateTable(playerOneShips, playerTwoShips, p1Shots));
+			gameDTO.setPlayerTurnShipCount(new Long(p1Ships.size()));
+			gameDTO.setTable(generateTable(p1Ships, p2Ships, p1Shots));
 			
 			return gameDTO;
 		}
@@ -201,6 +202,9 @@ public class GameController {
 		// perform shoot: add/update shots and remove ships that are hit
 		gameService.shootSalvo(shots, gameId, playerOneId, playerTwoId);
 		List<Shot> shotResult = shotService.getShots(gameId, playerOneId);
+		List<Shot> p1Shots = shotService.getShots(gameId, playerOneId);
+		shotResult.addAll(p1Shots);
+		
 		List<SpaceShip> playerOneShips = spaceShipsService.getPlayerSpaceShips(playerOneId);
 		List<SpaceShip> playerTwoShips = spaceShipsService.getPlayerSpaceShips(playerTwoId);
 		
@@ -228,28 +232,47 @@ public class GameController {
 		gameDTO.setFullName(game.getPlayerTwo().getFullName());
 		gameDTO.setPlayerId(String.valueOf(playerTwoId));
 		gameDTO.setPlayerTurn(game.getPlayerTwo().getFullName());
+		if (game.getPlayerTurn().getId().equals(game.getPlayerOne().getId())) {
+			gameDTO.setPlayerTurn(game.getPlayerOne().getFullName());
+			
+			List<SpaceShip> p1Ships = spaceShipsService.getPlayerSpaceShips(playerOneId);
+			List<SpaceShip> p2Ships = spaceShipsService.getPlayerSpaceShips(playerTwoId);
+			List<Shot> p2Shots = shotService.getShots(gameId, playerOneId);
+			gameDTO.setPlayerTurnShipCount(new Long(p1Ships.size()));
+			gameDTO.setTable(generateTable(p1Ships, p2Ships, p2Shots));
+			
+			gameDTO.setError("Player 1 plays now!");
+			return gameDTO;
+		}
 		
 		// get number of p2 battle ships and generate random shots
 		// random first time (when no p2 shots), after might be some logic 
 		// to create shot near HIT place(s)
 		
 		Long playerTwoShipsCount = spaceShipsService.getPlayerSpaceShipsCount(playerTwoId);
-		Random random = new Random();
+		List<Shot> p2Shots = shotService.getShots(gameId, playerTwoId);
+		
 		List<Shot> shots = new ArrayList<>();
 		for (int i=0; i<playerTwoShipsCount; i++) {
-			int rowIndex = random.nextInt(HEX_CHARS.length()-1);
-			int colIndex = random.nextInt(HEX_CHARS.length()-1);
+			int row = generateRandomPosition();
+			int col = generateRandomPosition();
+			while (getShot(row, col, p2Shots) != null) {
+				row = generateRandomPosition();
+				col = generateRandomPosition();
+			}
 			Shot shot = new Shot();
 			shot.setGame(game);
 			shot.setPlayer(game.getPlayerTwo());
-			shot.setRow(Integer.valueOf(String.valueOf(HEX_CHARS.charAt(rowIndex)), 16));
-			shot.setCol(Integer.valueOf(String.valueOf(HEX_CHARS.charAt(colIndex)), 16));
+			shot.setRow(row);
+			shot.setCol(col);
 			shots.add(shot);
 		}
 		
 		// perform shoot: add/update shots and remove ships that are hit
 		gameService.shootSalvo(shots, gameId, playerTwoId, playerOneId);
 		List<Shot> shotResult = shotService.getShots(gameId, playerTwoId);
+		shotResult.addAll(p2Shots);
+		
 		List<SpaceShip> playerOneShips = spaceShipsService.getPlayerSpaceShips(playerOneId);
 		List<SpaceShip> playerTwoShips = spaceShipsService.getPlayerSpaceShips(playerTwoId);
 		
@@ -264,11 +287,11 @@ public class GameController {
 	
 	private List<SpaceShip> generateSpaceShips(Character ch, int quarter) {
 		Random random = new Random();
-		String[] positions = battleshipFormMap.get(ch);
+		String[] positions = SPACESHIP_FORM_MAP.get(ch);
 		List<SpaceShip> spaceShips = new ArrayList<>();
 		int randomRowColOffset = random.nextInt(3);
-		int quarterRowOffset = quarterOffsetMap.get(quarter).getRowOffset();
-		int quarterColOffset = quarterOffsetMap.get(quarter).getColOffset();
+		int quarterRowOffset = QUARTER_OFFSET_MAP.get(quarter).getRowOffset();
+		int quarterColOffset = QUARTER_OFFSET_MAP.get(quarter).getColOffset();
 		for (int i=0; i<positions.length; i++) {
 			String[] rowcol = positions[i].split(":");
 			int row = Integer.valueOf(rowcol[0]) + randomRowColOffset + quarterRowOffset;
@@ -294,6 +317,12 @@ public class GameController {
 			}
 		}
 		return null;
+	}
+	
+	private Integer generateRandomPosition() {
+		Random random = new Random();
+		int rowIndex = random.nextInt(HEX_CHARS.length()-1);
+		return Integer.valueOf(String.valueOf(HEX_CHARS.charAt(rowIndex)), 16);
 	}
 	
 	private String generateTable(List<SpaceShip> p1Ships, List<SpaceShip> p2Ships) {

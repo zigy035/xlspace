@@ -1,1 +1,1 @@
-<p>Copyright &copy; 2016 CoolShop.com</p>
+<p>Made by IgorM (2017)</p>

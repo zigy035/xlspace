@@ -3,8 +3,8 @@
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags" %>
 
 <div id="nav">
-	<h1>CoolShop</h1>
-	<div class="content_right">
+	<h1>XLSpaceShip Battle</h1>
+	<%-- <div class="content_right">
 		<a href="<%=request.getContextPath()%>/">Home</a> |
 		<sec:authorize access="isAnonymous()">
 			<a href="<%=request.getContextPath()%>/login">Login</a> |
@@ -17,5 +17,5 @@
 		    <c:url var="logoutURL" value="/login/logout" />
 		    <a href="${logoutURL}">Logout</a>
 		</sec:authorize>
-	</div>
+	</div> --%>
 </div>
