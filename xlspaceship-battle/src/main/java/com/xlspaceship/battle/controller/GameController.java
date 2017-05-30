@@ -251,12 +251,13 @@ public class GameController {
 		
 		Long playerTwoShipsCount = spaceShipsService.getPlayerSpaceShipsCount(playerTwoId);
 		List<Shot> p2Shots = shotService.getShots(gameId, playerTwoId);
+		List<SpaceShip> p2Ships = spaceShipsService.getPlayerSpaceShips(playerTwoId);
 		
 		List<Shot> shots = new ArrayList<>();
 		for (int i=0; i<playerTwoShipsCount; i++) {
 			int row = generateRandomPosition();
 			int col = generateRandomPosition();
-			while (getShot(row, col, p2Shots) != null) {
+			while (getShot(row, col, p2Shots) != null || shipExist(row, col, p2Ships)) {
 				row = generateRandomPosition();
 				col = generateRandomPosition();
 			}
@@ -301,7 +302,7 @@ public class GameController {
 		return spaceShips;
 	}
 	
-	private boolean doesShipExist(int row, int col, List<SpaceShip> spaceShips) {
+	private boolean shipExist(int row, int col, List<SpaceShip> spaceShips) {
 		for (SpaceShip spaceShip : spaceShips) {
 			if (spaceShip.getRow().equals(row) && spaceShip.getCol().equals(col)) {
 				return true;
@@ -329,9 +330,9 @@ public class GameController {
 		StringBuilder sb = new StringBuilder();
 		for (int i=0; i<16; i++) {
 			for (int j=0; j<16; j++) {
-				if (doesShipExist(i, j, p1Ships)) {
+				if (shipExist(i, j, p1Ships)) {
 					sb.append(SPACESHIP_MARK);
-				} else if (doesShipExist(i, j, p2Ships)) {
+				} else if (shipExist(i, j, p2Ships)) {
 					// should display only destroyed (or hit) ships
 					sb.append(SPACESHIP_MARK);
 				} else {
@@ -349,9 +350,9 @@ public class GameController {
 		StringBuilder sb = new StringBuilder();
 		for (int i=0; i<16; i++) {
 			for (int j=0; j<16; j++) {
-				if (doesShipExist(i, j, p1Ships)) {
+				if (shipExist(i, j, p1Ships)) {
 					sb.append(SPACESHIP_MARK);
-				} else if (doesShipExist(i, j, p2Ships)) {
+				} else if (shipExist(i, j, p2Ships)) {
 					sb.append(SPACESHIP_MARK);
 				} else {
 					Shot shot = getShot(i, j, shotResult);
