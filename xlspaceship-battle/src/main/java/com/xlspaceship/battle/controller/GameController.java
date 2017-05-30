@@ -167,7 +167,7 @@ public class GameController {
 		return gameDTO;
 	}
 	
-	@RequestMapping(value = "/protocol/user/game/{gid}/fire", method = RequestMethod.POST)
+	@RequestMapping(value = "/protocol/user/game/{gid}/fire", method = RequestMethod.PUT)
 	@ResponseBody
 	public GameDTO fireSalvo(@PathVariable("gid") String gid, @RequestBody FireSalvoForm form) {
 		
@@ -272,7 +272,6 @@ public class GameController {
 		// perform shoot: add/update shots and remove ships that are hit
 		gameService.shootSalvo(shots, gameId, playerTwoId, playerOneId);
 		List<Shot> shotResult = shotService.getShots(gameId, playerTwoId);
-		shotResult.addAll(p2Shots);
 		
 		List<SpaceShip> playerOneShips = spaceShipsService.getPlayerSpaceShips(playerOneId);
 		List<SpaceShip> playerTwoShips = spaceShipsService.getPlayerSpaceShips(playerTwoId);

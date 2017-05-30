@@ -58,7 +58,7 @@
 			</p>
 		</form> -->
 		
-		<form id="fireForm" ng-submit="fireSalvo()" method="post">
+		<form id="fireForm" ng-submit="fireSalvo()">
 			<input type="hidden" name="gameId" ng-model="game.gameId" required/>
 		    
 		    <div ng-repeat="data in salvoForm.salvo track by $index">

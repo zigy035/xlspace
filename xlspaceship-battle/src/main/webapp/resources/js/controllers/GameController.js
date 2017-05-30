@@ -43,7 +43,7 @@ gameApp.controller('gameController', function($scope, $http) {
     	console.log("SALVO SHOOTS: " + $scope.salvoForm.salvo[0]);
     	
 		$http({
-			method: 'POST', 
+			method: 'PUT', 
 			url: "protocol/user/game/" + $scope.game.gameId + "/fire", 
 			data: {
 	    		salvo : $scope.salvoForm.salvo
