@@ -14,7 +14,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.xlspaceship.battle.dto.GameDTO;
@@ -47,7 +46,6 @@ public class GameController {
 	private static final Object SPACE = " ";
 	
 	private static final String XLABS = "XLABS";
-	private static final String ERROR_CODE = "404";
 	
 	// Winger (X) Form
 	private static final String [] WINGER_FORM = {"0:0", "0:2", "1:0", "1:2", "2:1", "3:0", "3:2", "4:0", "4:2"};
@@ -160,7 +158,7 @@ public class GameController {
 		gameDTO.setPlayerId(String.valueOf(game.getPlayerTwo().getId()));
 		gameDTO.setStarting(String.valueOf(game.getPlayerOne().getId()));
 		gameDTO.setPlayerTurn(game.getPlayerOne().getFullName());
-		gameDTO.setTable(generateTable(playerOne.getSpaceships(), playerTwo.getSpaceships()));
+		gameDTO.setTable(generateTable(playerOne.getSpaceships()/*, playerTwo.getSpaceships()*/));
 		
 		gameDTO.setPlayerTurnShipCount(new Long(playerOne.getSpaceships().size()));
 		
@@ -191,10 +189,9 @@ public class GameController {
 		} catch (Exception e) {
 			gameDTO.setError(e.getMessage());
 			List<SpaceShip> p1Ships = spaceShipsService.getPlayerSpaceShips(playerOneId);
-			List<SpaceShip> p2Ships = spaceShipsService.getPlayerSpaceShips(playerTwoId);
 			List<Shot> p1Shots = shotService.getShots(gameId, playerOneId);
 			gameDTO.setPlayerTurnShipCount(new Long(p1Ships.size()));
-			gameDTO.setTable(generateTable(p1Ships, p2Ships, p1Shots));
+			gameDTO.setTable(generateTable(p1Ships, p1Shots));
 			
 			return gameDTO;
 		}
@@ -206,10 +203,9 @@ public class GameController {
 		shotResult.addAll(p1Shots);
 		
 		List<SpaceShip> playerOneShips = spaceShipsService.getPlayerSpaceShips(playerOneId);
-		List<SpaceShip> playerTwoShips = spaceShipsService.getPlayerSpaceShips(playerTwoId);
 		
 		gameDTO.setPlayerTurn(game.getPlayerTwo().getFullName());
-		gameDTO.setTable(generateTable(playerOneShips, playerTwoShips, shotResult));
+		gameDTO.setTable(generateTable(playerOneShips/*, playerTwoShips*/, shotResult));
 		
 		Long p2ShipsCount = spaceShipsService.getPlayerSpaceShipsCount(playerTwoId);
 		gameDTO.setPlayerTurnShipCount(p2ShipsCount);
@@ -236,10 +232,9 @@ public class GameController {
 			gameDTO.setPlayerTurn(game.getPlayerOne().getFullName());
 			
 			List<SpaceShip> p1Ships = spaceShipsService.getPlayerSpaceShips(playerOneId);
-			List<SpaceShip> p2Ships = spaceShipsService.getPlayerSpaceShips(playerTwoId);
 			List<Shot> p2Shots = shotService.getShots(gameId, playerOneId);
 			gameDTO.setPlayerTurnShipCount(new Long(p1Ships.size()));
-			gameDTO.setTable(generateTable(p1Ships, p2Ships, p2Shots));
+			gameDTO.setTable(generateTable(p1Ships, p2Shots));
 			
 			gameDTO.setError("Player 1 plays now!");
 			return gameDTO;
@@ -274,10 +269,9 @@ public class GameController {
 		List<Shot> shotResult = shotService.getShots(gameId, playerTwoId);
 		
 		List<SpaceShip> playerOneShips = spaceShipsService.getPlayerSpaceShips(playerOneId);
-		List<SpaceShip> playerTwoShips = spaceShipsService.getPlayerSpaceShips(playerTwoId);
 		
 		gameDTO.setPlayerTurn(game.getPlayerOne().getFullName());
-		gameDTO.setTable(generateTable(playerOneShips, playerTwoShips, shotResult));
+		gameDTO.setTable(generateTable(playerOneShips, shotResult));
 		
 		Long p1ShipsCount = spaceShipsService.getPlayerSpaceShipsCount(playerOneId);
 		gameDTO.setPlayerTurnShipCount(p1ShipsCount);
@@ -325,16 +319,16 @@ public class GameController {
 		return Integer.valueOf(String.valueOf(HEX_CHARS.charAt(rowIndex)), 16);
 	}
 	
-	private String generateTable(List<SpaceShip> p1Ships, List<SpaceShip> p2Ships) {
+	private String generateTable(List<SpaceShip> p1Ships/*, List<SpaceShip> p2Ships*/) {
 		StringBuilder sb = new StringBuilder();
 		for (int i=0; i<16; i++) {
 			for (int j=0; j<16; j++) {
 				if (shipExist(i, j, p1Ships)) {
 					sb.append(SPACESHIP_MARK);
-				} else if (shipExist(i, j, p2Ships)) {
+				} /*else if (shipExist(i, j, p2Ships)) {
 					// should display only destroyed (or hit) ships
 					sb.append(SPACESHIP_MARK);
-				} else {
+				}*/ else {
 					sb.append(EMPTY);
 				}
 				sb.append(SPACE);
@@ -344,16 +338,16 @@ public class GameController {
 		return sb.toString().trim();
 	}
 	
-	private String generateTable(List<SpaceShip> p1Ships, List<SpaceShip> p2Ships, List<Shot> shotResult) {
+	private String generateTable(List<SpaceShip> p1Ships/*, List<SpaceShip> p2Ships*/, List<Shot> shotResult) {
 		// 'X' means hit, '-' means missed
 		StringBuilder sb = new StringBuilder();
 		for (int i=0; i<16; i++) {
 			for (int j=0; j<16; j++) {
 				if (shipExist(i, j, p1Ships)) {
 					sb.append(SPACESHIP_MARK);
-				} else if (shipExist(i, j, p2Ships)) {
+				} /*else if (shipExist(i, j, p2Ships)) {
 					sb.append(SPACESHIP_MARK);
-				} else {
+				}*/ else {
 					Shot shot = getShot(i, j, shotResult);
 					if (shot != null) {
 						sb.append(shot.getStatus().equals(ShotStatus.HIT) ? SPACESHIP_HIT : SPACESHIP_MISS);
