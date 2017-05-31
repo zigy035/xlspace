@@ -11,11 +11,9 @@
 
 	<!-- Configures the @Controller programming model -->
 	<mvc:annotation-driven />
-
-	<!-- Scans the classpath of this application for @Components to deploy as 
-		beans -->
+	
 	<context:component-scan base-package="com.xlspaceship.battle.controller" />
-
+	
 	<mvc:resources mapping="/resources/**" location="/resources/" />
  	
 	<!-- Tiles templates -->
@@ -29,28 +27,6 @@
 		    	<value>/WEB-INF/tiles-config.xml</value>
 		    </list>
 		</property>
-	</bean>
-	
-	<!-- Localized messages -->
- 	<bean id="messageSource" class="org.springframework.context.support.ReloadableResourceBundleMessageSource">
-	    <property name="basenames">
-            <list>
-                <value>classpath:messages</value>
-            </list>
-        </property>
-	    <property name="defaultEncoding" value="UTF-8" />
-	</bean>
-	
-	<mvc:interceptors>
-    	<ref bean="localeChangeInterceptor"/>
-    </mvc:interceptors>
-	
-	<bean id="localeResolver" class="org.springframework.web.servlet.i18n.SessionLocaleResolver">
-		<property name="defaultLocale" value="en" />
-	</bean>
-	
-	<bean id="localeChangeInterceptor" class="org.springframework.web.servlet.i18n.LocaleChangeInterceptor">
-		<property name="paramName" value="locale" />
 	</bean>
 
 </beans>
