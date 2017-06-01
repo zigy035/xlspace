@@ -3,20 +3,22 @@ package com.xlspaceship.battle.model;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+
+import org.hibernate.annotations.GenericGenerator;
 
 @Entity
 @Table(name = "game")
 public class Game {
 	
 	@Id
-	@GeneratedValue(strategy = GenerationType.AUTO)
+	@GenericGenerator(name = "game_keygen", strategy = "com.xlspaceship.battle.util.GameKeyGenerator")
+    @GeneratedValue(generator = "game_keygen")
 	@Column(name = "id")
-	private Integer id;
+	private String id;
 	
 	@ManyToOne(targetEntity = Player.class)
 	@JoinColumn(name = "player_one_id", nullable = false)
@@ -36,7 +38,7 @@ public class Game {
 	@Column(name = "port")
 	private String port;
 
-	public Integer getId() {
+	public String getId() {
 		return id;
 	}
 

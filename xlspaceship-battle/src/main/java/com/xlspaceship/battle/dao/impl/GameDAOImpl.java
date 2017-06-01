@@ -14,7 +14,7 @@ public class GameDAOImpl implements GameDAO {
 	}
 	
 	@Override
-	public Game getGameInfo(Integer gameId) {
+	public Game getGameInfo(String gameId) {
 		return (Game) entityManager
 				.createQuery("FROM Game g WHERE g.id = :gameId")
 				.setParameter("gameId", gameId)

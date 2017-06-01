@@ -17,7 +17,7 @@ public class PlayerDAOImpl implements PlayerDAO {
 	}
 	
 	@Override
-	public Player getPlayer(Integer playerId) {
+	public Player getPlayer(String playerId) {
 		return (Player) entityManager
 				.createQuery("FROM Player p WHERE id = :playerId")
 				.setParameter("playerId", playerId)
@@ -46,17 +46,5 @@ public class PlayerDAOImpl implements PlayerDAO {
 				+ "WHERE s.playerId = :playerId AND s.gameId = :gameId")
 				.getResultList();
 	}
-
-	/*@SuppressWarnings("unchecked")
-	@Override
-	public List<SpaceShip> getPlayerSpaceShips(Integer playerId, Integer gameId) {
-		return (List<SpaceShip>)entityManager.createQuery("FROM SpaceShip s "
-				+ "JOIN Player p ON s.playerId = p.id "
-				+ "JOIN Game g ON g.playerOne.id = p.id "
-				+ "WHERE s.playerId = :playerId AND p.gameId = :gameId")
-				.setParameter("playerId", playerId)
-				.setParameter("gameId", gameId)
-				.getResultList();
-	}*/
 
 }

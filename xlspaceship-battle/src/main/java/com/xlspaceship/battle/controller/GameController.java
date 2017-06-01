@@ -158,7 +158,7 @@ public class GameController {
 		gameDTO.setPlayerId(String.valueOf(game.getPlayerTwo().getId()));
 		gameDTO.setStarting(String.valueOf(game.getPlayerOne().getId()));
 		gameDTO.setPlayerTurn(game.getPlayerOne().getFullName());
-		gameDTO.setTable(generateTable(playerOne.getSpaceships()/*, playerTwo.getSpaceships()*/));
+		gameDTO.setTable(generateTable(playerOne.getSpaceships()));
 		
 		gameDTO.setPlayerTurnShipCount(new Long(playerOne.getSpaceships().size()));
 		
@@ -169,10 +169,10 @@ public class GameController {
 	@ResponseBody
 	public GameDTO fireSalvo(@PathVariable("gid") String gid, @RequestBody FireSalvoForm form) {
 		
-		Integer gameId = Integer.valueOf(gid);
+		String gameId = String.valueOf(gid);
 		Game game = gameService.getGameInfo(gameId);
-		Integer playerOneId = game.getPlayerOne().getId();
-		Integer playerTwoId = game.getPlayerTwo().getId();
+		String playerOneId = game.getPlayerOne().getId();
+		String playerTwoId = game.getPlayerTwo().getId();
 		
 		// mozda GameDTO treba da ima samo game, error i table
 		GameDTO gameDTO = new GameDTO();
@@ -205,7 +205,7 @@ public class GameController {
 		List<SpaceShip> playerOneShips = spaceShipsService.getPlayerSpaceShips(playerOneId);
 		
 		gameDTO.setPlayerTurn(game.getPlayerTwo().getFullName());
-		gameDTO.setTable(generateTable(playerOneShips/*, playerTwoShips*/, shotResult));
+		gameDTO.setTable(generateTable(playerOneShips, shotResult));
 		
 		Long p2ShipsCount = spaceShipsService.getPlayerSpaceShipsCount(playerTwoId);
 		gameDTO.setPlayerTurnShipCount(p2ShipsCount);
@@ -217,10 +217,10 @@ public class GameController {
 	@ResponseBody
 	public GameDTO receiveSalvoShots(@PathVariable("gid") String gid) {
 		
-		Integer gameId = Integer.valueOf(gid);
+		String gameId = String.valueOf(gid);
 		Game game = gameService.getGameInfo(gameId);
-		Integer playerOneId = game.getPlayerOne().getId();
-		Integer playerTwoId = game.getPlayerTwo().getId();
+		String playerOneId = game.getPlayerOne().getId();
+		String playerTwoId = game.getPlayerTwo().getId();
 		
 		// mozda GameDTO treba da ima samo game, error i table
 		GameDTO gameDTO = new GameDTO();
@@ -319,16 +319,13 @@ public class GameController {
 		return Integer.valueOf(String.valueOf(HEX_CHARS.charAt(rowIndex)), 16);
 	}
 	
-	private String generateTable(List<SpaceShip> p1Ships/*, List<SpaceShip> p2Ships*/) {
+	private String generateTable(List<SpaceShip> p1Ships) {
 		StringBuilder sb = new StringBuilder();
 		for (int i=0; i<16; i++) {
 			for (int j=0; j<16; j++) {
 				if (shipExist(i, j, p1Ships)) {
 					sb.append(SPACESHIP_MARK);
-				} /*else if (shipExist(i, j, p2Ships)) {
-					// should display only destroyed (or hit) ships
-					sb.append(SPACESHIP_MARK);
-				}*/ else {
+				} else {
 					sb.append(EMPTY);
 				}
 				sb.append(SPACE);
@@ -338,16 +335,14 @@ public class GameController {
 		return sb.toString().trim();
 	}
 	
-	private String generateTable(List<SpaceShip> p1Ships/*, List<SpaceShip> p2Ships*/, List<Shot> shotResult) {
+	private String generateTable(List<SpaceShip> p1Ships, List<Shot> shotResult) {
 		// 'X' means hit, '-' means missed
 		StringBuilder sb = new StringBuilder();
 		for (int i=0; i<16; i++) {
 			for (int j=0; j<16; j++) {
 				if (shipExist(i, j, p1Ships)) {
 					sb.append(SPACESHIP_MARK);
-				} /*else if (shipExist(i, j, p2Ships)) {
-					sb.append(SPACESHIP_MARK);
-				}*/ else {
+				} else {
 					Shot shot = getShot(i, j, shotResult);
 					if (shot != null) {
 						sb.append(shot.getStatus().equals(ShotStatus.HIT) ? SPACESHIP_HIT : SPACESHIP_MISS);

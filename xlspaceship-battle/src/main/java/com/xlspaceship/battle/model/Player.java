@@ -5,19 +5,21 @@ import java.util.List;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.persistence.Transient;
+
+import org.hibernate.annotations.GenericGenerator;
 
 @Entity
 @Table(name = "player")
 public class Player {
 	
 	@Id
-	@GeneratedValue(strategy = GenerationType.AUTO)
+	@GenericGenerator(name = "player_keygen", strategy = "com.xlspaceship.battle.util.PlayerKeyGenerator")
+    @GeneratedValue(generator = "player_keygen")
 	@Column(name = "id")
-	private Integer id;
+	private String id;
 	
 	@Column(name = "full_name")
 	private String fullName;
@@ -31,12 +33,8 @@ public class Player {
 		this.fullName = fullName;
 	}
 
-	public Integer getId() {
+	public String getId() {
 		return id;
-	}
-
-	public void setId(Integer id) {
-		this.id = id;
 	}
 
 	public String getFullName() {

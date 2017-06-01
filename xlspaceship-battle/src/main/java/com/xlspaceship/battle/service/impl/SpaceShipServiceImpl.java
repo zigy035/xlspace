@@ -11,12 +11,12 @@ public class SpaceShipServiceImpl implements SpaceShipService {
 	private SpaceShipDAO spaceShipDAO;
 	
 	@Override
-	public List<SpaceShip> getPlayerSpaceShips(Integer playerId) {
+	public List<SpaceShip> getPlayerSpaceShips(String playerId) {
 		return spaceShipDAO.getPlayerSpaceShips(playerId);
 	}
 
 	@Override
-	public Long getPlayerSpaceShipsCount(Integer playerId) {
+	public Long getPlayerSpaceShipsCount(String playerId) {
 		return spaceShipDAO.getPlayerSpaceShipsCount(playerId);
 	}
 	

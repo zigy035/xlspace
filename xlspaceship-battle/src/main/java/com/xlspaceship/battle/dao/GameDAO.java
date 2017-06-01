@@ -4,7 +4,7 @@ import com.xlspaceship.battle.model.Game;
 
 public interface GameDAO {
 	
-	Game getGameInfo(Integer gameId);
+	Game getGameInfo(String gameId);
 	
 	void addGame(Game game);
 	

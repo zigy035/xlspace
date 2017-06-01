@@ -4,7 +4,7 @@ import com.xlspaceship.battle.model.Player;
 
 public interface PlayerService {
 	
-	Player getPlayer(Integer id);
+	Player getPlayer(String id);
 	
 	void addPlayer(Player player);
 }

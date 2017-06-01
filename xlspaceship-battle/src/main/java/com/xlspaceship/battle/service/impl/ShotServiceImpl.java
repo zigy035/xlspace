@@ -11,7 +11,7 @@ public class ShotServiceImpl implements ShotService {
 	private ShotDAO shotDAO;
 	
 	@Override
-	public List<Shot> getShots(Integer gameId, Integer playerId) {
+	public List<Shot> getShots(String gameId, String playerId) {
 		return shotDAO.getShots(gameId, playerId);
 	}
 

@@ -6,9 +6,9 @@ import com.xlspaceship.battle.model.Shot;
 
 public interface ShotDAO {
 	
-	Shot getShot(Integer gameId, Integer playerId, Integer row, Integer col);
+	Shot getShot(String gameId, String playerId, Integer row, Integer col);
 	
-	List<Shot> getShots(Integer gameId, Integer playerId);
+	List<Shot> getShots(String gameId, String playerId);
 	
 	void addShot(Shot shot);
 

@@ -6,7 +6,7 @@ import com.xlspaceship.battle.model.SpaceShip;
 
 public interface SpaceShipService {
 	
-	List<SpaceShip> getPlayerSpaceShips(Integer playerId);
+	List<SpaceShip> getPlayerSpaceShips(String playerId);
 	
-	Long getPlayerSpaceShipsCount(Integer playerId);
+	Long getPlayerSpaceShipsCount(String playerId);
 }

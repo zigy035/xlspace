@@ -17,7 +17,7 @@ public class ShotDAOImpl implements ShotDAO {
 	}
 	
 	@Override
-	public Shot getShot(Integer gameId, Integer playerId, Integer row, Integer col) {
+	public Shot getShot(String gameId, String playerId, Integer row, Integer col) {
 		try {
 			return (Shot) entityManager.createQuery("FROM Shot s "
 					+ "WHERE s.game.id = :gameId AND s.player.id = :playerId "
@@ -35,7 +35,7 @@ public class ShotDAOImpl implements ShotDAO {
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<Shot> getShots(Integer gameId, Integer playerId) {
+	public List<Shot> getShots(String gameId, String playerId) {
 		return entityManager.createQuery("FROM Shot s "
 				+ "WHERE s.game.id = :gameId AND s.player.id = :playerId ")
 				.setParameter("gameId", gameId)

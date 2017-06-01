@@ -6,5 +6,5 @@ import com.xlspaceship.battle.model.Shot;
 
 public interface ShotService {
 	
-	List<Shot> getShots(Integer gameId, Integer playerId);
+	List<Shot> getShots(String gameId, String playerId);
 }

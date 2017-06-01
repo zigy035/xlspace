@@ -22,7 +22,7 @@ public class SpaceShipDAOImpl implements SpaceShipDAO {
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<SpaceShip> getPlayerSpaceShips(Integer playerId) {
+	public List<SpaceShip> getPlayerSpaceShips(String playerId) {
 		return (List<SpaceShip>)entityManager.createQuery("FROM SpaceShip s "
 				+ "WHERE s.player.id = :playerId")
 				.setParameter("playerId", playerId)
@@ -30,7 +30,7 @@ public class SpaceShipDAOImpl implements SpaceShipDAO {
 	}
 	
 	@Override
-	public Long getPlayerSpaceShipsCount(Integer playerId) {
+	public Long getPlayerSpaceShipsCount(String playerId) {
 		return (Long)entityManager.createQuery("SELECT COUNT(s.id) FROM SpaceShip s "
 				+ "WHERE s.player.id = :playerId")
 				.setParameter("playerId", playerId)

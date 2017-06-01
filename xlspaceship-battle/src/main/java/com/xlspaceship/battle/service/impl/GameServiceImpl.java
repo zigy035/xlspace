@@ -28,7 +28,7 @@ public class GameServiceImpl implements GameService {
 	ShotDAO shotDAO; 
 	
 	@Override
-	public Game getGameInfo(Integer gameId) {
+	public Game getGameInfo(String gameId) {
 		return gameDAO.getGameInfo(gameId);
 	}
 
@@ -57,7 +57,7 @@ public class GameServiceImpl implements GameService {
 	}
 	
 	@Override
-	public void shootSalvo(List<Shot> shots, Integer gameId, Integer playerOneId, Integer playerTwoId) {
+	public void shootSalvo(List<Shot> shots, String gameId, String playerOneId, String playerTwoId) {
 		List<SpaceShip> spaceShips = spaceShipDAO.getPlayerSpaceShips(playerTwoId);
 		for (Shot shot : shots) {
 			for (SpaceShip spaceShip : spaceShips) {

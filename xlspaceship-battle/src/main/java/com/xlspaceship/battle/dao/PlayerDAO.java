@@ -7,7 +7,7 @@ import com.xlspaceship.battle.model.Shot;
 
 public interface PlayerDAO {
 	
-	Player getPlayer(Integer id);
+	Player getPlayer(String id);
 	
 	void addPlayer(Player player);
 
