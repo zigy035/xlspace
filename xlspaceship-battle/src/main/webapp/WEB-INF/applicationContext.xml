@@ -105,5 +105,13 @@
 		<property name="shotDAO" ref="shotDAO"/>
 		<property name="spaceShipDAO" ref="spaceShipDAO"/>
 	</bean>
+	
+	<bean id="bookDAO" class="com.xlspaceship.battle.dao.impl.BookDAOImpl">
+		<property name="entityManager" ref="entityManager" />
+	</bean>
+	
+	<bean id="bookService" class="com.xlspaceship.battle.service.impl.BookServiceImpl">
+		<property name="bookDAO" ref="bookDAO"/>
+	</bean>
 
 </beans>

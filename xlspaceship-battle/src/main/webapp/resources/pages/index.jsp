@@ -1,6 +1,6 @@
 <h2>XL Battle Game</h2>
 
-<div ng-app="gameApp" ng-controller="gameController">
+<!-- <div ng-app="gameApp" ng-controller="gameController">
 	
 	<form id="newGame" ng-submit="createNewGame()" method="post">
 		<table>
@@ -60,4 +60,62 @@
 	</div>
 	
 	<script src="resources/js/controllers/GameController.js"></script>
+</div> -->
+
+<!-- Book CRUD -->
+	
+<div ng-app="bookApp" ng-controller="bookController">
+	
+	<form id="saveBook" ng-submit="saveBook()">
+		<table>
+			<tr>
+				<td><label for="bookId">Book Id <b style="color:red">*</b></label></td>
+				<td><input ng-model="bookForm.bookId" type="text"/></td>
+			</tr>
+			<tr>
+				<td><label for="title">Title<b style="color:red">*</b></label></td>
+				<td><input ng-model="bookForm.title" type="text" required/></td>
+			</tr>
+			<tr>
+				<td><label for="author">Author<b style="color:red">*</b></label></td>
+				<td><input ng-model="bookForm.author" type="text" required/></td>
+			</tr>
+			<tr>
+				<td><label for="category">Category<b style="color:red">*</b></label></td>
+				<td><input ng-model="bookForm.category" type="text" required/></td>
+			</tr>
+		</table>
+		<p>
+			<input class="btn btn_link" type="submit" value="Save Book" style="width: 150px" />
+		</p>
+	</form>
+
+	<div ng-show="books.length > 0">
+		<table class="stripeMe sample">
+			<thead>
+				<tr>
+					<th>Book ID</th>
+					<th>Title</th>
+					<th>Author</th>
+					<th>Category</th>
+					<th>Action</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr ng-repeat="book in books">
+					<td>{{book.bookId}}</td>
+					<td>{{book.title}}</td>
+					<td>{{book.author}}</td>
+					<td>{{book.category}}</td>
+					<td>
+						<a href="javascript:void(0)" ng-click="editBook(book.bookId)">Edit</a>
+						<a href="javascript:void(0)" ng-click="deleteBook(book.bookId)">Delete</a>
+					</td>
+				</tr>
+			</tbody>
+		</table>
+	</div>
+	
+	<script src="resources/js/controllers/BookController.js"></script>
 </div>
+	
